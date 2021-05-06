@@ -1,0 +1,12 @@
+
+*.aux
+*.bbl
+_region_.tex
+*.blg
+*.log
+*.out
+*.gz
+*.toc
+*~
+\#*#
+*.rel

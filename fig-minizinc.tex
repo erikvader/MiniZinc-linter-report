@@ -1,0 +1,40 @@
+\begin{figure}[ht]
+\centering
+\begin{tikzpicture}[
+  grunka/.style={rectangle,draw,align=center},
+  grej/.style={align=center,rectangle},
+  solver/.style={minimum width=50pt},
+  backend/.style={minimum width=65pt,minimum height=19pt},
+  model/.style={minimum width=58pt,minimum height=17pt},
+  shorten >=2pt,
+  >=stealth'
+  ]
+  \node [grunka,model] (MZN) at (0, 0) {MiniZinc};
+  \node [grunka,model] (DZN) at ($(MZN.center) + (0, -30pt)$) {Instance};
+  \node [grunka] (FZN) [right=of MZN] {FlatZinc};
+  \node [grunka,backend] (BKN) [right=of FZN] {fzn-gecode};
+  \node [grunka,solver] (SLV) [right=of BKN] {Gecode};
+  \node [grunka,backend,anchor=west] (BKN2) at ($(BKN.west) + (0,-30pt)$) {fzn-chuffed};
+  \node [grunka,solver] (SLV2) at (SLV|-BKN2) {Chuffed};
+  \node (ELI) [below=5pt of BKN2] {$\vphantom{\int^0}\smash[t]{\vdots}$};
+
+  \node [above=23pt of MZN,grej,anchor=center] {High-level \\ Model};
+  \node [above=23pt of FZN,grej,anchor=center] {Compiled \\ Model};
+  \node [above=23pt of BKN,grej,anchor=center] {Backend};
+  \node [above=23pt of SLV,grej,anchor=center] {Solver};
+
+  \draw[->] (MZN) edge (FZN)
+            (FZN) edge (BKN)
+            (BKN) edge (SLV)
+            (BKN2) edge (SLV2);
+  \draw[->] (DZN.east) -- (FZN.south west);
+  \draw[->] ($(FZN.east)!0.7!(BKN.west)$) |- (BKN2);
+  \draw[dashed,->] ($(FZN.east)!0.7!(BKN.west)$) |- (BKN2.west|-ELI);
+
+  \verticalline{dotted}{($(MZN.east)!0.5!(FZN.west)$)};
+  \verticalline{dotted}{($(FZN.east)!0.5!(BKN.west)$)};
+  \verticalline{dotted}{($(BKN.east)!0.5!(SLV.west)$)};
+\end{tikzpicture}%
+\caption{How a MiniZinc model gets run by a solver to produce a result. The high-level model is compiled (flattened) into a low-level model which a backend and solver pair uses to find solutions.}%
+\label{fig:minizinc}
+\end{figure}
