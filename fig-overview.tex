@@ -20,7 +20,7 @@
   \foreach \y in {-4.2, -4.1, -4} \lintrule{LR1}{(-\y, \y)};
   \node (PR1) at (4, -4) {\cpp{LintRule}};
   \draw[big arrow, shorten >=8pt] (BOX) edge[out=0, in=90] node [number, near start] {1} (LR1);
-  \draw[-{Tee Barb[width=5mm, length=2mm]}, shorten >=0, dashed] (LR1) edge[out=180,
+  \draw[big arrow, dashed] (LR1) edge[out=180,
   in=-90] node [number] {2} ($(BOX.south) + (0.5, 0)$);
 
   \node (PRT) [rectangle, align=left, draw=black, line width=1mm, rounded corners, inner sep=2mm] at (-3, -3.6) {\texttt{\textbf{\Large >\_}} \\ Stdout printer};
@@ -28,6 +28,10 @@
 
 \end{tikzpicture}%
 \smallskip%
-\caption{Illustration for the main execution of the linter. The \cpp{LintEnv} is given as an argument to each \cpp{LintRule} (1). Each rule will analyse the AST and write its results back to a list inside \cpp{LintEnv} (2). When all rules have been processed is the list of all results given to a function that will output them back to the user (3).}%
+\caption{Illustration for the main execution of the linter. The \cpp{LintEnv} is given as
+  an argument to each \cpp{LintRule} (1). Each rule will analyse the AST and write its
+  results back to a list inside \cpp{LintEnv} (2). When all rules have been processed, is
+  the list of all results given to a function that will output them back to the user
+  (3).}%
 \label{fig:overview}
 \end{figure}
