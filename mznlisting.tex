@@ -3,6 +3,40 @@
 
 \newcommand\mznfont{\fontfamily{pcr}\selectfont}
 
+\lstdefinestyle{mzn}{
+  basicstyle=\mznfont,
+  commentstyle=\color[rgb]{0.9,0.1,0.1},
+  keywordstyle=\color[rgb]{0,0.5,0},
+  keywordstyle=[2]\color{blue},
+  stringstyle=\color{orange},
+  tabsize=2,
+  frame=none,
+  % identifierstyle = \it,
+  numbers=left,
+  stepnumber=1,
+  numberstyle=\tiny,
+  numbersep=5pt,
+  xleftmargin=0pt, % numbers will be in the margins!
+  columns=fixed, % same width for all characters
+  % columns=flexible,
+  % columns=fullflexible,
+  aboveskip={0pt},
+  belowskip={0pt},
+  showstringspaces=false,
+  mathescape=true,
+  breaklines=true,
+  % prebreak=\raisebox{0ex}[0ex][0ex]{\ensuremath{\space\red{\swarrow}}},%\hookrightarrow
+  postbreak=\raisebox{0ex}[0ex][0ex]{\ensuremath{\textcolor{black}{\hookrightarrow\space}}},%\hookrightarrow
+  breakatwhitespace=true,
+  breakindent=0pt, % was: 20pt
+  escapeinside={{<@}{@>}}
+}
+
+\lstdefinestyle{nonumbers} {
+  numbers=none,
+  xleftmargin=0pt,
+}
+
 \lstdefinelanguage{Mzn}
 {
   morekeywords={
@@ -56,45 +90,23 @@
   % 
   },
   sensitive=true,
-  basicstyle=\mznfont,
-  commentstyle=\color[rgb]{0.9,0.1,0.1},
-  keywordstyle=\color[rgb]{0,0.5,0},
-  keywordstyle=[2]\color{blue},
-  stringstyle=\color{orange},
-  tabsize=2,
-  frame=none,
-  % identifierstyle = \it,
-  numbers=left,
-  stepnumber=1,
-  numberstyle=\tiny,
-  numbersep=5pt,
-  xleftmargin=0pt, % numbers will be in the margins!
-  columns=fixed, % same width for all characters
-  % columns=flexible,
-  % columns=fullflexible,
-  aboveskip={0pt},
-  belowskip={0pt},
   morecomment=[l]{\%},
   morestring=[b]",
   % morestring=[d]',
-  showstringspaces=false,
-  mathescape=true,
-  breaklines=true,
-  % prebreak=\raisebox{0ex}[0ex][0ex]{\ensuremath{\space\red{\swarrow}}},%\hookrightarrow
-  postbreak=\raisebox{0ex}[0ex][0ex]{\ensuremath{\textcolor{black}{\hookrightarrow\space}}},%\hookrightarrow
-  breakatwhitespace=true,
-  breakindent=0pt, % was: 20pt
   moredelim=**[is][\color{Melon}]{@}{@},
-  escapeinside={{<@}{@>}}
 }
 %% Write "\begin{frame}[fragile]" for a slide using either of the
 %% following two listing environments, which have unnumbered
 %% respectively numbered lines:
-\lstnewenvironment{mzn}[1][]{\lstset{language=Mzn,#1}}{}
-\lstnewenvironment{mznno}[1][]{\lstset{language=Mzn,numbers=none,xleftmargin=0pt,#1}}{}
-\lstnewenvironment{mznnobreak}[1][]{\noindent\lstset{language=Mzn,numbers=none,xleftmargin=0pt,#1}\minipage{\textwidth}}{\endminipage}
+\lstnewenvironment{mzn}[1][]{\lstset{language=Mzn,style=mzn,#1}}{}
+\lstnewenvironment{mznno}[1][]{\lstset{language=Mzn,style=mzn,style=nonumbers,#1}}{}
+\lstnewenvironment{mznnobreak}[1][]{\noindent\lstset{language=Mzn,style=mzn,style=nonumbers,#1}\minipage{\textwidth}}{\endminipage}
 \BeforeBeginEnvironment{mznnobreak}{\par}
 \AfterEndEnvironment{mznnobreak}{\par}
+
+\lstnewenvironment{mznbreak}[1][]{\noindent\lstset{language=Mzn,style=mzn,#1}\minipage{\textwidth}}{\endminipage}
+\BeforeBeginEnvironment{mznbreak}{\par}
+\AfterEndEnvironment{mznbreak}{\par}
 %% Inline a code snippet, without respectively with the comprehension bar (|):
-\newcommand{\mzninline}[1]{\lstinline[{language=Mzn}]|#1|}
-\newcommand{\mzninlinebar}[1]{\lstinline[{language=Mzn}]!#1!}
+\newcommand{\mzninline}[1]{\lstinline[{language=Mzn,style=mzn}]|#1|}
+\newcommand{\mzninlinebar}[1]{\lstinline[{language=Mzn,style=mzn}]!#1!}
