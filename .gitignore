@@ -10,3 +10,9 @@ _region_.tex
 *~
 \#*#
 *.rel
+*.pdf
+/*.fls
+/*.fdb_latexmk
+/README.md
+/IEEEtran.zip
+/instr*.tex
