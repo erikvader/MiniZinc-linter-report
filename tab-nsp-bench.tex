@@ -1,0 +1,22 @@
+\begin{table}[p]
+\iffast\else
+\newcommand{\asdd}[1]{\textcolor{NavyBlue}{\underline{#1}}}
+\newcommand{\asd}[1]{\ifcsvstrcmp{#1}{N/A}{\asdd{#1}}{\ifdim #1 pt>1.0pt \asdd{#1} \else #1 \fi}}
+\newcolumntype{R}{>{\hfill}X}
+  \centering
+  \begin{tabularx}{\textwidth}{*{7}{R}}
+    Instance & Original & Constvar & Domain & Impl & All & All+Card\\\hline
+    \csvreader[
+    head to column names,
+    separator=comma,
+    late after line=\\,
+    ]{nsp_benches/chuffed.csv}{}{\data & \asd{\original} & \asd{\constvar} & \asd{\domain} & \asd{\impl} & \asd{\all} & \asd{\allglobal}}
+  \end{tabularx}
+  \fi
+  \caption{Execution times (in seconds) from running Chuffed on the first twenty instances
+    in \texttt{period\_14}. The times are obtained from executing \texttt{time minizinc
+      --solver chuffed --time-limit 60000 "\$model" "\$instance"} in a sh-compatible
+    shell. The blue underlined times are either timeouts or they took longer than on
+    second. The tests were performed on my average desktop computer.}%
+  \label{tab:nsp:bench}
+\end{table}
