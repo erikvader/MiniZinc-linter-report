@@ -15,45 +15,9 @@
 \usepackage{tabularx}
 \usepackage[nottoc,numbib]{tocbibind}
 
-\newcommand{\elnaturale}{\mathbb{N}}
-\newcommand{\Oh}[1]{\mathcal{O} (#1)}
-
 \newif\iffast
 % \fasttrue
-
-\iffast
-\newcommand{\missingfigure}[1]{}
-\newcommand{\todo}[1]{}
-\usepackage{verbatim}
-\newenvironment{tikzpicture}[1]{\comment}{\endcomment}
-\else
-% \usepackage{todonotes}
-\usepackage{tikz}
-\usetikzlibrary{arrows,positioning,calc,fit,arrows.meta,shadows}
-\tikzset{big arrow/.style={-{Stealth[scale=1.4]}, shorten >=2pt}}
-\tikzset{AST/.style = {
-  minimum size=15pt,
-  inner sep=0pt,
-  every node/.style={circle, align=center},
-  level distance=30pt,
-}}
-\usepackage{pgfplots}\pgfplotsset{compat=1.16}
-
-\newcommand{\verticalline}[2]{\draw[#1]
-($(current bounding box.north west)!#2!(current bounding box.north east)$)
---
-($(current bounding box.south west)!#2!(current bounding box.south east)$)}
-\fi
-
-\input{mznlisting}
-\newcommand{\mi}[1]{\mbox{\mzninline{#1}}}
-\newcommand{\cpp}[1]{\mbox{\mznfont #1}}
-
-\lstdefinestyle{diff}{
-  morecomment=[f][\color{Green}]{+},
-  morecomment=[f][\color{Red}]{-},
-}
-\lstnewenvironment{cppp}[1][]{\lstset{language={[11]C++},style=mzn,#1}}{}
+\input{common.tex}
 
 \usepackage{UppsalaExjobb}
 
@@ -297,7 +261,14 @@ representation of the model designed to be easily used by solvers. Each
 solver has its own backend, which is the program or library which actually converts the
 FlatZinc model into the solver's own model which then can be used by the solver.
 
-\input{fig-minizinc}
+\begin{figure}[ht]
+  \centering
+  \input{fig-minizinc}
+  \caption{How a MiniZinc model gets run by a solver to produce a result. The high-level
+    model is compiled (flattened) into a low-level model which a backend and solver pair
+    uses to find solutions.}%
+  \label{fig:minizinc}
+\end{figure}
 
 MiniZinc models are often divided into two parts: the model itself and instances. The
 model is made generic in the sense that it models some problem, like The Travelling
@@ -412,7 +383,15 @@ constraint circuit(next);
 solve minimize sum(i in Ns)(dist[i,next[i]]);
 \end{mznbreak}
 
-\input{fig-tsp}
+\begin{figure}[ht]
+  \centering
+  \input{fig-tsp}
+  \caption{Example instance of Travelling Salesman Problem with $n=4$ cities. The state is
+    $\langle 3,4,2,1 \rangle$, which means that after city 1 is city 3 visited, after
+    city 2 is city 4 visitied etc. The total distance travelled is \SI{63}{km}. Only the
+    paths for the current route are shown.}%
+  \label{fig:tsp}
+\end{figure}
 
 TSP could be modelled as a list of length $N$ with integers from 1 to $N$
 where each integer represent a city (line~2 and line~3).
@@ -533,7 +512,16 @@ itself a tree encoding whatever that statement represents. The information
 about the arguments and the return type could be stored in the node itself or as yet more
 children, there are many ways to design an AST.
 
-\input{fig-bkg-ast}
+\begin{figure}[ht]
+  \centering
+  \input{fig-bkg-ast}
+  \caption{On the left is a possible tree of the expression $0\cdot(2+f(3))$. The right one
+    is a possible tree of the expression $(0 \cdot 2)+f(3)$. The asterisks in the trees
+    represents multiplication. The different placements of the parenthesis changes what the
+    generated tree looks like. The red numbers on the sides represents what each sub-tree
+    evaluates to if $f(x) = x$.}%
+  \label{fig:bkg:ast}
+\end{figure}
 
 An AST is abstract in the sense that it does not encode everything in the original code.
 Things like parentheses in mathematical expression are often implicitly encoded by the
@@ -575,7 +563,18 @@ Section~\ref{sec:impl:structure}. The AST searcher will be explained in detail i
 Section~\ref{sec:searcher}. How rules are added is explained in Section~\ref{sec:impl:rules}.
 
 \subsection{System Structure}\label{sec:impl:structure}
-\input{fig-overview}
+\begin{figure}[ht]
+  \centering
+  \smallskip%
+  \input{fig-overview}
+  \smallskip%
+  \caption{Illustration for the main execution of the linter. The \cpp{LintEnv} is given as
+    an argument to each \cpp{LintRule} (1). Each rule will analyse the AST and write its
+    results back to a list inside \cpp{LintEnv} (2). When all rules have been processed, is
+    the list of all results given to a function that will output them back to the user
+    (3).}%
+  \label{fig:overview}
+\end{figure}
 
 The overall structure of this linter is illustrated in Figure~\ref{fig:overview} and
 everything following here will be illustrated in that figure. The most important component
@@ -640,7 +639,17 @@ single nodes of interest using visitors, but it would be verbose to find
 more complicated constructs.
 
 \subsubsection{MiniZinc Abstract Syntax Tree}
-\input{fig-ast-searcher}
+\begin{figure}[ht]
+  \centering
+  \input{fig-ast-searcher}
+  \caption{Illustration of two ASTs. The left one corresponds to \mi{constraint x+42=y},
+    and the right one corresponds to \mi{var int: x=1+1+1+1}. The blue numbers are
+    for referring to the nodes more easily and are not a part of the AST. The \mi{Id} at
+    node 3 has a pointer to its declaration. \cpp{BinOp} is short for ``binary operation'',
+    \cpp{Id} is short for ``identifier'' and lastly \cpp{IntLit} is short for ``integer
+    literal''. These three are names of classes from MiniZinc.}%
+  \label{fig:ast:searcher}
+\end{figure}
 
 The output of the MiniZinc parser is an object of the class \mi{Model}. It is not strictly
 an abstract syntax \emph{tree}, but more like a collection of abstract syntax
@@ -1331,7 +1340,17 @@ function var int: f() = x+N;
 solve minimize f();
 \end{mznnobreak}
 
-\input{fig-unused-graph}
+\begin{figure}[ht]
+  \centering
+  \smallskip%
+  \input{fig-unused-graph}
+  \smallskip%
+  \caption{A dependency graph of an example model. An edge from a node to another means that
+    the first node is directly depending on the other. For example is \mi{M} using \mi{N}.
+    The green filled in nodes (\mi{f}, \mi{N}, \mi{x} and \mi{K}) are in use, and the blue
+    filled node (\mi{J}) is ignored as it is contained inside of \mi{M}.}%
+  \label{fig:unused:graph}
+\end{figure}
 
 After the graph has been constructed are all constraints and solve-statements checked for
 mentions of any variables and functions. Each one and all of its

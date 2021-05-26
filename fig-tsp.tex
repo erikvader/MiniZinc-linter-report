@@ -1,34 +1,26 @@
-\begin{figure}[ht]
-  \centering
-  \begin{tikzpicture}[
-    city/.style={draw, circle, minimum size=9mm},
-    arr/.style={rectangle, minimum size=0.4cm},
-    Arr/.style={-{Stealth}},
-    ]
-    \node (SLA) at (-3, -1) [city, label=above:Sala] {1};
-    \node (HBY) at (2, 0) [city, label=above:Heby] {2};
-    \node (MGA) at (5, -0.2) [city, label=above:Morgongåva] {3};
-    \node (VIT) at (7.3, -1.4) [city, label=above:Vittinge] {4};
+\begin{tikzpicture}[
+  city/.style={draw, circle, minimum size=9mm},
+  arr/.style={rectangle, minimum size=0.4cm},
+  Arr/.style={-{Stealth}},
+  ]
+  \node (SLA) at (-3, -1) [city, label=above:Sala] {1};
+  \node (HBY) at (2, 0) [city, label=above:Heby] {2};
+  \node (MGA) at (5, -0.2) [city, label=above:Morgongåva] {3};
+  \node (VIT) at (7.3, -1.4) [city, label=above:Vittinge] {4};
 
-    \draw (SLA) edge[Arr,above, near start] node {20} (MGA)
-          (MGA) edge[Arr,above] node {5} (HBY)
-          (HBY) edge[Arr,above, near end] node {12} (VIT)
-          (VIT) edge[Arr,below] node {26} (SLA);
+  \draw (SLA) edge[Arr,above, near start] node {20} (MGA)
+        (MGA) edge[Arr,above] node {5} (HBY)
+        (HBY) edge[Arr,above, near end] node {12} (VIT)
+        (VIT) edge[Arr,below] node {26} (SLA);
 
-    \node (A1) at (0, -3) [arr, label=north:1] {3};
-    \node (A2) [arr, right=0 of A1, label=north:2] {4};
-    \node (A3) [arr, right=0 of A2, label=north:3] {2};
-    \node (A4) [arr, right=0 of A3, label=north:4] {1};
-    \draw (A1.north west) -- (A4.north east) -- (A4.south east) -- (A1.south west) -- cycle;
-    \draw (A1.north east) -- (A1.south east)
-          (A2.north east) -- (A2.south east)
-          (A3.north east) -- (A3.south east);
+  \node (A1) at (0, -3) [arr, label=north:1] {3};
+  \node (A2) [arr, right=0 of A1, label=north:2] {4};
+  \node (A3) [arr, right=0 of A2, label=north:3] {2};
+  \node (A4) [arr, right=0 of A3, label=north:4] {1};
+  \draw (A1.north west) -- (A4.north east) -- (A4.south east) -- (A1.south west) -- cycle;
+  \draw (A1.north east) -- (A1.south east)
+        (A2.north east) -- (A2.south east)
+        (A3.north east) -- (A3.south east);
 
-    \node [right=of A4] {$\sum = \SI{63}{km}$};
-  \end{tikzpicture}
-  \caption{Example instance of Travelling Salesman Problem with $n=4$ cities. The state is
-    $\langle 3,4,2,1 \rangle$, which means that after city 1 is city 3 visited, after
-    city 2 is city 4 visitied etc. The total distance travelled is \SI{63}{km}. Only the
-    paths for the current route are shown.}%
-  \label{fig:tsp}
-\end{figure}
+  \node [right=of A4] {$\sum = \SI{63}{km}$};
+\end{tikzpicture}

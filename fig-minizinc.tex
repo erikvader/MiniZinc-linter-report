@@ -1,5 +1,3 @@
-\begin{figure}[ht]
-\centering
 \begin{tikzpicture}[
   grunka/.style={rectangle,draw,align=center},
   grej/.style={align=center,rectangle},
@@ -35,6 +33,3 @@
   \verticalline{dotted}{($(FZN.east)!0.5!(BKN.west)$)};
   \verticalline{dotted}{($(BKN.east)!0.5!(SLV.west)$)};
 \end{tikzpicture}%
-\caption{How a MiniZinc model gets run by a solver to produce a result. The high-level model is compiled (flattened) into a low-level model which a backend and solver pair uses to find solutions.}%
-\label{fig:minizinc}
-\end{figure}

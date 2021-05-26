@@ -1,6 +1,3 @@
-\begin{figure}[ht]
-\centering
-\smallskip%
 \begin{tikzpicture}[
   every node/.style={draw, circle},
   -{Stealth[scale=1.2]},
@@ -21,10 +18,3 @@
         (M) edge (J)
         (M) edge (N);
 \end{tikzpicture}%
-\smallskip%
-\caption{A dependency graph of an example model. An edge from a node to another means that
-  the first node is directly depending on the other. For example is \mi{M} using \mi{N}.
-  The green filled in nodes (\mi{f}, \mi{N}, \mi{x} and \mi{K}) are in use, and the blue
-  filled node (\mi{J}) is ignored as it is contained inside of \mi{M}.}%
-\label{fig:unused:graph}
-\end{figure}

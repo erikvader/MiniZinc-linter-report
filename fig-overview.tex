@@ -1,6 +1,3 @@
-\begin{figure}[ht]
-\centering
-\smallskip%
 \begin{tikzpicture}[
   blackrekt/.style={draw, rectangle},
   number/.style={auto,draw,circle,solid,inner sep=1pt,outer sep=3pt, node font=\scriptsize, very thin},
@@ -27,11 +24,3 @@
   \draw [big arrow] (RES) edge[in=90,out=180,looseness=1.3] node [number] {3} (PRT);
 
 \end{tikzpicture}%
-\smallskip%
-\caption{Illustration for the main execution of the linter. The \cpp{LintEnv} is given as
-  an argument to each \cpp{LintRule} (1). Each rule will analyse the AST and write its
-  results back to a list inside \cpp{LintEnv} (2). When all rules have been processed, is
-  the list of all results given to a function that will output them back to the user
-  (3).}%
-\label{fig:overview}
-\end{figure}

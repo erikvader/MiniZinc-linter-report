@@ -1,0 +1,36 @@
+\newcommand{\elnaturale}{\mathbb{N}}
+\newcommand{\Oh}[1]{\mathcal{O} (#1)}
+
+\iffast
+\newcommand{\missingfigure}[1]{}
+\newcommand{\todo}[1]{}
+\usepackage{verbatim}
+\newenvironment{tikzpicture}[1]{\comment}{\endcomment}
+\else
+% \usepackage{todonotes}
+\usepackage{tikz}
+\usetikzlibrary{arrows,positioning,calc,fit,arrows.meta,shadows}
+\tikzset{big arrow/.style={-{Stealth[scale=1.4]}, shorten >=2pt}}
+\tikzset{AST/.style = {
+  minimum size=15pt,
+  inner sep=0pt,
+  every node/.style={circle, align=center},
+  level distance=30pt,
+}}
+\usepackage{pgfplots}\pgfplotsset{compat=1.16}
+
+\newcommand{\verticalline}[2]{\draw[#1]
+($(current bounding box.north west)!#2!(current bounding box.north east)$)
+--
+($(current bounding box.south west)!#2!(current bounding box.south east)$)}
+\fi
+
+\input{mznlisting}
+\newcommand{\mi}[1]{\mbox{\mzninline{#1}}}
+\newcommand{\cpp}[1]{\mbox{\mznfont #1}}
+
+\lstdefinestyle{diff}{
+  morecomment=[f][\color{Green}]{+},
+  morecomment=[f][\color{Red}]{-},
+}
+\lstnewenvironment{cppp}[1][]{\lstset{language={[11]C++},style=mzn,#1}}{}
