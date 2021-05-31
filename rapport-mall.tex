@@ -128,24 +128,24 @@ använder sig utav helt andra algoritmer, blev det ingen märkbar skillnad på l
 \section{Introduction}\label{sec:introduktion}
 Static analysis on source code is a way to catch many kinds of errors before
 a program even is executed.
-Bugs, weird special cases and inefficient code are some of many things which are possible
+Bugs, weird special cases, and inefficient code are some of many things that are possible
 to statically check, and tools that do this are called \emph{linters}.
 
 MiniZinc is a declarative solver-independent modelling language for constraint
 satisfaction and optimisation problems~\cite{MiniZinc}. The MiniZinc compiler reports on
-syntax errors and other errors which inhibit a successful compilation. It does not suggest
-improvements on the model itself by e.g.\@ reporting on constructs (Syntactically valid
-sequence of tokens, e.g.\@ if-statements) which should be avoided if possible, or on
+syntax errors and other errors that inhibit a successful compilation. It does not suggest
+improvements on the model itself by, e.g.\@, reporting on constructs (Syntactically valid
+sequence of tokens, e.g.\@, if-statements) that should be avoided if possible, or on
 constructs that are error prone. This is not surprising since a compiler's main job is to
-process code into some other code (e.g.\@ machine code), if the construct is valid it will
-process it. The goal of this project is to implement a linter that do these model
+process code into some other code (e.g.\@ machine code). If the construct is valid, then a compiler will
+process it, else abort. The goal of this project is to implement a linter that do these model
 improving checks for MiniZinc models. The exact checks (or rules) implemented are all
 described in Section~\ref{sec:rules}.
 
 Constraint satisfaction and optimisation problems have many important applications, such
 as scheduling and finding optimal routes. Problems like these can be difficult to solve as
 they often do not have a known polynomial-time algorithm. There are programs called
-\emph{solvers} which are made to find solutions to problems like this using advanced
+\emph{solvers} that are made to find solutions to problems like this using advanced
 algorithms in different technologies, each one good in its own way. Problems are usually
 described declaratively as models, where each solver has its own way of specifying them.
 MiniZinc is an effort to create a modelling language that can be used with many different
@@ -153,7 +153,7 @@ solvers, making it a lot easier to try different solvers with the same problem
 description. The core of constraint problems consist of \emph{constraints} and
 \emph{decision variables}. A decision variable is a variable with unknown value, and a
 solver's task is to find appropriate values for all of these. Constraints specify how
-decision variables relate to each other, or what values are allowed, e.g.\@ that one
+decision variables relate to each other, or what values are allowed, e.g., that one
 variable must be greater than another.
 
 Declarative models specify \emph{what} problem to solve, not the exact steps to \emph{how}
@@ -166,7 +166,7 @@ domain is not specified, then the domain can potentially be as big as the solver
 handle, which can slow down solving.
 
 To save time, simplifying the implementation and to allow for a possible integration with
-the MiniZinc project was the parser from the MiniZinc project reused for this project,
+the MiniZinc project, was the parser from the MiniZinc project reused for this project,
 specifically the output from it, namely an Abstract Syntax Tree (AST). An AST is a data
 structure encoding the formal structure of a program, a MiniZinc model in this case. The
 MiniZinc compiler is written in the programming language C++~\cite{cpp}, so this project
@@ -186,7 +186,7 @@ performed and benchmarked.
 
 \section{Background}\label{sec:bakgrund}
 This section will give necessary background information about: MiniZinc, what kinds of
-problems it can solve, how a MiniZinc model is written, more on linters and what
+problems it can solve, how a MiniZinc model is written, more on linters, and what
 an abstract syntax tree is.
 
 % \subsection{Solvers and Models}
@@ -237,11 +237,11 @@ solution states~\cite{combopt}. Combinatorial satisfaction tries to find these s
 while combinatorial optimisation tries to find a solution state that minimises or
 maximises some quantity associated with each state.
 
-MiniZinc models combinatorial problems using constraints, i.e.\@ constraint satisfaction
+MiniZinc models combinatorial problems using constraints, i.e.\@, constraint satisfaction
 and optimisation problems. These are modelled using decision variables and
 constraints on those variables~\cite{constraintshandbook}. Each constraint limits the
 allowed values on one or more variables.
-For example $x_1 > x_2$ or $x_3 = 3$ etc. If all constraints are satisfied is a
+For example $x_1 > x_2$ or $x_3 = 3$ etc. When all constraints are satisfied is a
 solution state formed from all current variable assignments.
 
 There are many solvers and technologies for solving combinatorial optimisation and
@@ -249,42 +249,41 @@ satisfaction problems, each one good in its own way. Each solver
 has its own interface, which makes it time consuming to compare different
 solvers as the same problem has to be reformulated for each one. MiniZinc~\cite{MiniZinc}
 is a tool chain for creating ``universal'' models that can be run on any solver MiniZinc
-supports, i.e.\@ the \emph{same} model can be used on different solvers without any
+supports, i.e., the \emph{same} model can be used on different solvers without any
 rewrites.
 
 A diagram showing how a MiniZinc model is processed to eventually run on a
 solver is shown in Figure~\ref{fig:minizinc}. The model itself is written in a text file
-which is compiled (or flattened) into something called FlatZinc, a lower level
+that is compiled (or flattened) into something called FlatZinc, a lower level
 representation of the model designed to be easily used by solvers. Each
-solver has its own backend, which is the program or library which actually converts the
-FlatZinc model into the solver's own model which then can be used by the solver.
+solver has its own backend, which is the program or library that actually converts the
+FlatZinc model into the solver's own model that then can be used by the solver.
 
 \begin{figure}[ht]
   \centering
   \input{fig-minizinc}
   \caption{How a MiniZinc model gets run by a solver to produce a result. The high-level
-    model is compiled (flattened) into a low-level model which a backend and solver pair
+    model is compiled (flattened) into a low-level model that a backend and solver pair
     uses to find solutions.}%
   \label{fig:minizinc}
 \end{figure}
 
 MiniZinc models are often divided into two parts: the model itself and instances. The
-model is made generic in the sense that it models some problem, like The Travelling
-Salesman Problem (TSP) from
-Section~\ref{sec:tsp}, without exact values. The TSP model is in terms of $n$ cities, but
-to be solved by a solver must $n$ have a concrete value, which instances (usually separate
-files) provides. This distinction makes it easy to run the same model with slightly
-different values on all parameters.
+model is made generic in the sense that it models some problem, without exact values. For
+example, some model could be modelled in terms of a parameter $n$, but to be solved by a
+solver must $n$ have a concrete value. Instances, usually separate files, provides
+concrete values to these parameters. This distinction makes it easy to run the same model
+with slightly different values on all parameters.
 
 \subsubsection{Syntax Overview}\label{sec:mzn:syntax}
 A MiniZinc model consists primarily of decision variables, constraints,
-functions and solve statements. Decision variables are values of various types like
-\mi{int}, \mi{bool} and \mi{float}, which the solver should find appropriate values for.
+functions, and solve statements. Decision variables are values of various types like
+\mi{int}, \mi{bool}, and \mi{float}, which the solver should find appropriate values for.
 What values are allowed and how the variables should relate to each other is expressed in
 constraints. For example, the following defines a decision variable \mi{x} of type
-\mi{int}, and a constraint which constrains \mi{x} to have a value strictly greater than
+\mi{int}, and a constraint that constrains \mi{x} to have a value strictly greater than
 five.
-\begin{mznnobreak}
+\begin{mznnobreak}[label=lst:overview1,caption={\null}]
 var int: x;
 constraint x > 5;
 \end{mznnobreak}
@@ -293,7 +292,7 @@ constraint x > 5;
 There are two solving modes, specified in a \mi{solve}-statement: satisfaction and optimisation. Satisfaction
 finds values for all decision variables such that all constraints are satisfied, and
 optimisation additionally minimises or maximises some decision variable.
-For example, adding \mi{solve minimize x} to the example above would create a
+For example, adding \mi{solve minimize x} to the example above (Listing~\ref{lst:overview1}) would create a
 model that tries to find the smallest integer value greater than five, which is
 six. Adding \mi{solve satisfy} would instead find \emph{any} integer greater than
 five. An optional search annotation can be specified on a \mi{solve}-statement, specifying
@@ -312,8 +311,8 @@ value in the current domain should be tried first.
 Variables that are fixed to a single given value are in MiniZinc called \emph{parameters}.
 A parameter is declared with \mi{par}, or no keyword at all, instead of \mi{var}.
 Parameters are useful since they can be seen as parameters for the whole model itself,
-i.e.\@ what exact instance of a model that should be solved.
-For example, the above example can be rewritten with a parameter as follows:
+i.e., what exact instance of a model that should be solved.
+For example, the above example (Listing~\ref{lst:overview1}) can be rewritten with a parameter as follows:
 \begin{mznnobreak}
 int: n = 5;
 var int: x;
@@ -327,16 +326,16 @@ This example can be separated into an instance file and a model file by giving
 % called an instance file.
 the model the declaration {\mi{int: n}} and the
 instance file the assignment \mi{n = 5}. Multiple instance files can be created
-for a single model, which makes it easy to change all parameters at once.
+for a single model, which makes it possible to change all parameters at once.
 
-Arrays allow for a variable amount of variables. The example below shows an array \mi{xs}
+Arrays allow for a variable amount of variables. The example below (Listing~\ref{lst:array}) shows an array \mi{xs}
 consisting of five int-variables. A variable in the array can be accessed separately with
 some special syntax. For example, the first variable can be accessed with
 \mi{xs[1]}.
 To access all variables in an array at once, can the builtin function \mi{forall} be used.
-The example below uses this to constrain all variables in the array to be strictly greater
+The example below (Listing~\ref{lst:array}) uses this to constrain all variables in the array to be strictly greater
 than five, it is like writing: $\forall x \in xs : x > 5$.
-\begin{mznnobreak}
+\begin{mznnobreak}[label=lst:array,caption={\null}]
 array[1..5] of var int: xs;
 constraint forall(i in 1..5)(xs[i] > 5);
 \end{mznnobreak}
@@ -344,8 +343,8 @@ constraint forall(i in 1..5)(xs[i] > 5);
 The final feature that will be covered here is functions. Functions allow the modeller to
 reuse the same code in multiple places. A function has a return value and zero or more
 parameters (not instance parameters), all of which can have the same possible types as
-regular variables (\mi{int} etc.). The declaration and usage of a function which takes a decision variable as
-parameter and returns a decision variable is shown below:
+regular variables (\mi{int} etc.). The following example is a declaration and usage of a function that takes a decision variable as
+a parameter and returns a decision variable back:
 \begin{mznnobreak}
 function var int: a_name(var int: x) = <@\textit{<some expression>}@>;
 constraint a_name(x) < 69;
@@ -353,7 +352,7 @@ constraint a_name(x) < 69;
 
 Some functions called \emph{global constraints} are special. A global constraint is a
 function defined in the standard library for high-level modelling abstractions. There is
-one global constraint called \mi{all_different} which constrains all values in an array to
+one global constraint called \mi{all_different} that constrains all values in an array to
 all be different from each other. Many solvers implement special inference algorithms for
 global constraints, which basically means that they can reason a lot better about them.
 Using a global constraint is preferred over directly using the definition of one.
@@ -365,8 +364,8 @@ salesman wants to travel to $n \in \elnaturale^+$ cities in an order that minimi
 distance travelled. Here, the solution states are all orderings that visits every city once, and the
 quantity to minimise is the total distance.
 
-How TSP can be modelled in MiniZinc is shown below.
-The same instance is illustrated in Figure~\ref{fig:tsp}.
+The following is an example of how TSP can be modelled in MiniZinc,
+The same instance is illustrated in Figure~\ref{fig:tsp}:
 \begin{mznbreak}
 include "globals.mzn";
 int: N = 4;
@@ -397,7 +396,7 @@ A 2D-array, or matrix, is constructed on line~4 with the distances between all p
 \mi{dist[i,j]} is the distance between
 city \mi{i} and \mi{j}, which is the same as the distance \mi{dist[j,i]}. The actual
 route to travel is encoded as an array on line~9, that is the decision variable(s). The
-value \mi{next[i]} is what city to visit next, e.g.\@ \mi{next[1] = 2} means that city~2
+value \mi{next[i]} is what city to visit next, e.g., \mi{next[1] = 2} means that city~2
 shall be travelled to after city~1. The global constraint \mi{circuit} on line~10 is
 constraining \mi{next} to complete a circuit (path) between all cities. Example of a
 circuit is $\langle 2,3,4,1 \rangle$, and an invalid circuit is $\langle 1,1,2,3 \rangle$. The global
@@ -417,13 +416,13 @@ the analysis is done without running the program. The term \emph{linter} origina
 program called lint~\cite{lint}, a tool for analysing C~\cite{c1978} programs. A linter can look for
 bugs, enforce a certain code style, find some kind of improvement, find error prone
 constructs, point out special cases etc. Compilers also do static analysis when they are
-compiling, e.g.\@ syntax analysis (whether a sequence of characters encode a valid
+compiling, e.g., syntax analysis (whether a sequence of characters encode a valid
 construct) and semantic analysis (type checking etc.\@).
 
 A compiler's main job is to convert source code to some other source code, usually machine
 code, and is probably aiming at doing so as fast as possible. A compiler generally only
 does the minimum amount of analysis required to determine if the given source code is
-legal, i.e.\@ follow the language's standard. Even though a program is legal does not mean
+legal, i.e., follow the language's standard. Even though a program is legal does not mean
 it is good, it could crash immediately on start up. Linters take a more leisurely view and
 tries see whether there are any potential problems with the otherwise legal program. The
 linter could look for uninitialised pointers in C programs that are dereferenced (would most likely make
@@ -436,7 +435,7 @@ its conclusions, it might not produce correct programs otherwise.
 
 There also are linters and other static analysis tools for
 programming languages that are
-interpreted, i.e.\@ languages that are run ``as is'' without compiling them first. Python
+interpreted, i.e., languages that are run ``as is'' without compiling them first. Python
 is an example of a dynamically typed (types determined at runtime) and interpreted
 language. It is possible to put optional type information in a python program and have a
 third-party program like mypy~\cite{mypy} do static type checking. MyPy does not
@@ -444,13 +443,13 @@ consider itself as a linter as it performs type checking, something a compiler t
 do.
 
 The checks a linter does are typically called \emph{rules}, and different linters have
-different ways of specifying them. The JavaScript linter ESLint~\cite{ESLint} allows user
+different ways of specifying them. The JavaScript linter ESLint~\cite{ESLint} allows the users
 to create their own rules in separate JavaScript files, alongside the builtin ones.
 Since JavaScript is interpreted can new user-specified rules be added relatively easily,
 they are loaded as any other file.
 A rule in ESLint
 consists of a pattern match against the AST and a function
-which will do additional checks to see whether it is a match or not and if something
+that will do additional checks to see whether it is a match or not and if something
 should be reported to the user. The rules in this project are structured in the same
 manner, except that the part that pattern matches is not as powerful. The one in ESLint can
 find arbitrary sub-trees while the one in this project can only find paths (sub-trees that
@@ -473,7 +472,7 @@ The suggested rewrite is also specified as plain Haskell code. One example rule 
 and suggest rewriting it to \texttt{a /= b}, the rewrite is shorter and handles \texttt{NaN} correctly.
 
 There are many terms for when a rule finds a match for something it wants to report on.
-\emph{Hits}, \emph{matches}, \emph{finds}, \emph{gets triggered} and \emph{reports} are
+\emph{Hits}, \emph{matches}, \emph{finds}, \emph{gets triggered}, and \emph{reports} are
 some that will be used in this report.
 
 Rules in linters are usually divided into several groups so they can be disabled or
@@ -489,8 +488,8 @@ behaviour. The quotes are vital, since the expression without them will perform 
 word splitting on the arguments (also something called ``globbing'', for completeness
 sake), which is not desired in the majority of cases. Consider a script called with the
 arguments ``-f'' and ``my cool model.mzn''. The expression \texttt{"\$@"} will expand in
-to the same arguments, i.e.\@ ``-f'' and ``my cool model.mzn''. But without quotes, i.e.\@
-\texttt{\$@}, it will instead expand to ``-f'', ``my'', ``cool'' and ``model.mzn'', because they
+to the same arguments, i.e., ``-f'' and ``my cool model.mzn''. But without quotes, i.e.,
+\texttt{\$@}, it will instead expand to ``-f'', ``my'', ``cool'', and ``model.mzn'', because they
 have been split on words. The lint
 rule called ``SC2068'' in ShellCheck does exactly this analysis.
 
@@ -544,7 +543,7 @@ present in the MiniZinc compiler, such as the type checker and pretty printer (c
 the AST back to nicely formatted code). Multiple complicated aspects of the language was
 provided for free as a consequence of reusing the parser, and was thus not needed to be
 reimplemented. One such aspect is function
-resolution, i.e.\@ the rules and logic behind what function definition to use given a name
+resolution, i.e., the rules and logic behind what function definition to use given a name
 and some arguments. Another reason
 for reusing the parser is to make a potential integration into the original project easier,
 as one parser is easier to maintain than two.
@@ -560,7 +559,7 @@ An overview of how the program itself is structured is explained in
 Section~\ref{sec:impl:structure}. The AST searcher will be explained in detail in
 Section~\ref{sec:searcher}. How rules are added is explained in Section~\ref{sec:impl:rules}.
 
-\subsection{System Structure}\label{sec:impl:structure}
+\subsection{Application Structure}\label{sec:impl:structure}
 \begin{figure}[ht]
   \centering
   \smallskip%
@@ -576,11 +575,11 @@ Section~\ref{sec:searcher}. How rules are added is explained in Section~\ref{sec
 
 The overall structure of this linter is illustrated in Figure~\ref{fig:overview} and
 everything following here will be illustrated in that figure. The most important component
-of this linter is a base class called \cpp{LintRule}. Each rule described in
-Section~\ref{sec:rules} is its own class that inherits from \cpp{LintRule}. Each rule
+of this linter is a base class called \cpp{LintRule}. Each rule
+is its own class that inherits from \cpp{LintRule}. Each rule
 consists of a unique ID, %a category,
-a name and a method which accepts a model and returns the rule's results, if any.
-This model argument is an object of the class \cpp{Model}, i.e.\@ the AST from the parser
+a name, and a method that accepts a model that returns the rule's results, if any.
+This model argument is an object of the class \cpp{Model}, i.e., the AST from the parser
 in the MiniZinc project.
 % They will be referred to as ``AST'' to avoid confusion with model files.
 The ID and category are used for filtering which rules to use, and the name is used
@@ -594,7 +593,7 @@ custom searcher described in Section~\ref{sec:searcher}.
 The rules do not take the AST directly, they take it wrapped in a class called
 \cpp{LintEnv}. This class contains a lot of helper functions that each rule interacts with
 directly. \cpp{LintEnv} contains, aside from the AST, a list of file paths
-to directories which contain library files, this list is henceforth referred to as
+to directories that contain library files, this list is henceforth referred to as
 ``include paths''.
 MiniZinc comes with a standard library that many
 common MiniZinc functions are defined in (e.g.\@ global constraints), and include paths help the linter to find them.
@@ -607,8 +606,8 @@ variables, both top-level and those defined in \mi{let}-statements.
 Each result is recorded in a class called \cpp{LintResult}. These hold the relevant data
 for a result like which rule it came from, the file position (line and column) for where it
 matched, an explanatory message, a recommended rewrite of the model, etc. These results are
-then given to some function which will present them to the user. That can be a simple
-print to standard output in a human-readable form, or converted to the JSON-format and
+then given to some function that will present them to the user. That can be a
+printed to standard output in a human-readable form, or converted to the JSON-format and
 given to an IDE, or something else.
 
 These are all of the relevant components for a high-level overview of this linter. A
@@ -620,14 +619,14 @@ typical execution for this linter in terms of these components is as follows:
   \item Construct a \cpp{LintEnv}-object
   \item Iterate through all \cpp{LintRule} and perform their analysis, saving their
   results to \cpp{LintEnv}.
-  \item Give the list of all \cpp{LintResult} to a function which will output them to, e.g.\@
+  \item Give the list of all \cpp{LintResult} to a function that will output them to, e.g.\@,
   the terminal
 \end{enumerate}
 
 \subsection{Abstract Syntax Tree Searcher}\label{sec:searcher}
 This project uses a custom made algorithm for finding relevant positions of interest in
 MiniZinc Abstract Syntax Trees (ASTs). Many rules require more complex searches than
-simple matching of single nodes in the AST, e.g.\@ ``find x=3 anywhere inside constraints
+matching of single nodes in the AST, e.g., ``find x=3 anywhere inside constraints
 except for in the else-clause of if-statements'' over ``find all if-statements''. Creating
 a searcher for this made the implementation of all rules simpler. An alternative
 approach would be to use what the MiniZinc project already is using for processing the
@@ -645,7 +644,7 @@ more complicated constructs.
     and the right one corresponds to \mi{var int: x=1+1+1+1}. The blue numbers are
     for referring to the nodes more easily and are not a part of the AST. The \mi{Id} at
     node 3 has a pointer to its declaration. \cpp{BinOp} is short for ``binary operation'',
-    \cpp{Id} is short for ``identifier'' and lastly \cpp{IntLit} is short for ``integer
+    \cpp{Id} is short for ``identifier'', and lastly \cpp{IntLit} is short for ``integer
     literal''. These three are names of classes from MiniZinc.}%
   \label{fig:ast:searcher}
 \end{figure}
@@ -654,8 +653,8 @@ The output of the MiniZinc parser is an object of the class \mi{Model}. It is no
 an abstract syntax \emph{tree}, but more like a collection of abstract syntax
 \emph{graphs}. An illustration of this is show in Figure~\ref{fig:ast:searcher}.
 \mi{Model} contains a list of all top-level items in a model, like constraints, variable
-declarations and functions. Each of those contain one or more \emph{expressions}, which
-basically are things that can be evaluated to some value, e.g.\@ \mi{1+1} which can be
+declarations, and functions. Each of those contain one or more \emph{expressions}, which
+basically are things that can be evaluated to some value, e.g., \mi{1+1} which can be
 evaluated to \mi{2}. Each expression is not strictly a tree either since for example
 \cpp{Id}-nodes, which represent an identifier like ``x'', has a pointer to the variable
 declaration it is referring to. The searcher explained here will actually search in these
@@ -663,11 +662,11 @@ expressions individually, but the whole model will be referred to as one AST for
 simplicity.
 
 Each expression saves where it came from, they save: the filename, beginning line, end
-line, beginning column and end column. If an expression did not come directly from a file,
-but was auto generated, it is marked as ``introduced'' instead.
+line, beginning column, and end column. If an expression did not come directly from a file,
+but was auto generated, then it is marked as ``introduced'' instead.
 
 \subsubsection{Finding Paths}\label{sec:paths}
-The searcher works by finding paths in the AST, i.e.\@ a sequence of $k \in \elnaturale^+$
+The searcher works by finding paths in the AST, i.e., a sequence of $k \in \elnaturale^+$
 nodes $n_1, n_2, \dots ,n_k$ where $n_m$ is a direct child of $n_{m-1}$ for
 all $m \in \{2,\dots,k\}$. A target path, or path to be searched for, is given as a
 non-empty sequence of targets $T_{R,N}$. Where $N$ is what kind of AST node to match
@@ -699,19 +698,19 @@ $\langle 10, 11 \rangle$, and $\langle 10, 12 \rangle$.
 This path matching algorithm is implemented as a backtracking algorithm. It will do a
 Depth First Search (DFS) to iterate over all paths in the AST. If the algorithm at some
 points deduces that the current path can not possibly produce a full match for a sequence of
-targets, it will stop searching that path and backtrack to an earlier point and try a
+targets, then it will stop searching that path and backtrack to an earlier point and try a
 different path.
 
 The algorithm is given an
 AST of $m \in \elnaturale^+$ nodes, and a sequence $S_1, S_2, \dots, S_k$ of $k \in \elnaturale^+$ targets as
 explained in Section~\ref{sec:paths}. The algorithm maintains a stack $D$ for a DFS of the
-AST, and another stack $P$ which contains the current path the DFS is on. Nodes get pushed
+AST, and another stack $P$ that contains the current path the DFS is on. Nodes get pushed
 to $P$ as they are discovered, but the algorithm must also know when to pop them of $P$. For this,
 the algorithm
 has to know when a particular node's children are done searching. Let's say that the DFS
 popped a new node $n$ from $D$, it will then push $n$ to $P$ to update the current path, but it will
 also push it back to $D$, as a marker, followed by all children of $n$. Now, if at any point later in
-the search $n$ gets popped again from $D$ and the top element of $P$ also is $n$, the DFS
+the search $n$ gets popped again from $D$ and the top element of $P$ also is $n$, then the DFS
 algorithm now knows that all sub-nodes of $n$ have been processed and that it is now okay to pop $P$.
 
 Some nodes in $P$ will be matched nodes from $S_n$, and some will be ``nodes on the way''
@@ -724,7 +723,7 @@ the height of the AST.
 A function $U$
 will determine whether a target $S_n$ is ``under'' (see Section~\ref{sec:paths}). $D$ is
 initialised with the root node of the AST and $P = H = \emptyset$. $1 \leq x \leq k+1$ will be the index of
-the next \emph{unmatched} target to find. If $x = k+1$, then are all targets are matched.
+the next \emph{unmatched} target to find. If $x = k+1$, then are all targets matched.
 % The pseudo code is shown in Figure~\ref{fig:algo:code}.
 The pseudo code is as follows:
 
@@ -738,7 +737,7 @@ The pseudo code is as follows:
       \item if $d = \mathtt{top}(H)$
       \begin{enumerate}
         \item $\mathtt{pop}(H)$ and $x \gets x-1$
-        \item if $U(S_x)$, push $d$ to $P$ and $D$, and also all children of $d$ to $D$.
+        \item if $U(S_x)$, then push $d$ to $P$ and $D$, and also all children of $d$ to $D$.
         This step forces $d$ to be unmatched to allow other nodes under $d$ to
         be matched against $S_x$.
       \end{enumerate}
@@ -751,7 +750,7 @@ The pseudo code is as follows:
       directly after $S_{x-1}$ (the previous), but it did not
     \end{description}
   \item push $d$ to $P$, it is now part of the current path. Also push $d$ to $D$ as a marker
-  \item if all $S$ have matched ($x > k$), $P$ contains a whole match. Go to~\ref{alg:beg}
+  \item if all $S$ have matched ($x > k$), then $P$ contains a whole match. Go to~\ref{alg:beg}
   \item push all children of $d$ to $D$
   \item go to~\ref{alg:beg}
 \end{enumerate}
@@ -763,7 +762,7 @@ The pseudo code is as follows:
 % \paragraph{Complexity}
 The worst case run-time complexity of the algorithm presented in Section~\ref{sec:algo}
 mostly depend on how many ``under'' there are and what shape the
-tree is in. The worst case is when all targets are ``under'', i.e.\@ $\forall_{1 \leq x
+tree is in. The worst case is when all targets are ``under'', i.e., $\forall_{1 \leq x
   \leq k} : U(S_x)$. Consider that the AST is a straight line that is $m$
 nodes long and that there are $k$ targets to match. If all $S_n$ match on every node, then the
 searcher will iterate over all $\binom{m}{k}$ matches. An upper bound can be found from the
@@ -787,7 +786,7 @@ are not even checked. Empirical results are discussed in Section~\ref{sec:discus
 
 \subsubsection{Filter Out the Standard Library}\label{sec:filter:stdlib}
 Different kinds of filtering is performed by the searcher. Each target $T_{R,N}$
-(explained in Section~\ref{sec:paths}) can have a function $F(n,c)$ which is used to
+(explained in Section~\ref{sec:paths}) can have a function $F(n,c)$ that is used to
 determine whether child $c$ of $n$ should be searched or not. This can be used to, for
 example, make sure only the left-hand side of a binary operator is searched upon. In
 general, it makes a search more specific and fine-tuned.
@@ -798,7 +797,7 @@ the standard library, the user can not modify those anyway (at least not if the 
 be usable by others with an unmodified standard library). Given an include path to the
 standard library, the searcher will not search in functions and variables whose origin
 filename is somewhere inside the include path. It will also ignore those whose location is
-introduced, i.e.\@ they have been generated by the compiler.
+introduced, i.e., they have been generated by the compiler.
 
 \subsubsection{C++ Interface}
 \sloppy % section-wide sloppy
@@ -843,7 +842,7 @@ searches on whole top-level items while \cpp{ExpressionSearcher} searches inside
 of expression at any level in the AST. The latter can be used to do further searches from
 the results of the former.
 
-The results are iterated one at a time in a lazy fashion by calling \cpp{next} on e.g.\@ \cpp{ModelSearcher}.
+The results are iterated one at a time in a lazy fashion by calling \cpp{next} on, e.g., \cpp{ModelSearcher}.
 The function returns true if there is a result available. Captured targets can be
 retrieved by calling \cpp{capture} supplied a zero-based index for which capture to return.
 The function \cpp{cur\_item} return a pointer to the current top-level item that is currently
@@ -858,7 +857,7 @@ while(sear.next()) {
 }
 \end{cppp}
 
-If no \cpp{under} or \cpp{direct} are called is the built searcher still valid, it will
+If no \cpp{under} or \cpp{direct} are called, then the built searcher is still valid and it will instead
 iterate over all top-level items without searching for anything inside expressions.
 The \cpp{SearchBuilder} can also construct \cpp{Search} objects that recursively visit
 included files, which is not done by default, and also specify filters for each target as
@@ -870,13 +869,14 @@ without captures).
 \subsection{Rule Implementation}\label{sec:impl:rules}
 All rules have their own file in \texttt{src/linter/rules/}, and each one define a class
 inheriting from \cpp{LintRule}. The one for \ruleref{nodomain} is defined in the following way:
-\begin{cppp}
+\begin{cppp}[label=lst:impl:rule,caption={\null}]
 namespace {
 using namespace LZN;
 
 class NoDomainVarDecl : public LintRule {
 public:
-  constexpr NoDomainVarDecl() : LintRule(13, "unbounded-variable") {}
+  constexpr NoDomainVarDecl()
+     : LintRule(13, "unbounded-variable") {}
 
 private:
   virtual void do_run(LintEnv &env) const override {<@\dots@>}
@@ -893,7 +893,7 @@ create a static instance of the class which a pointer of is given to a static re
 In other words, the rule will be added to a global list of available rules before the main
 function is executed.
 
-The code for \cpp{do\_run} in the rule above is currently defined as follows:
+The code for \cpp{do\_run} in the rule above (Listing~\ref{lst:impl:rule}) is currently defined as follows:
 \begin{cppp}
 for (const MiniZinc::VarDecl *vd
      : env.user_defined_variable_declarations()) {
@@ -929,22 +929,22 @@ bool isNoDomainVar(const MiniZinc::VarDecl &vd) {
 
 If the variable declaration is assigned to another value can the MiniZinc compiler deduce the
 domain from that, in which case it is fine to omit the domain. The cached function on line~4
-search for constraints that functionally define the variable declaration, e.g.\@
+search for constraints that functionally define the variable declaration, e.g.,
 constraints like \mi{constraint x=2}.
 
 \begin{sloppypar}
-If a variable declaration meet all criteria is the result added to \cpp{env} via
+If a variable declaration meet all criteria, then the result is added to \cpp{env} via
 \cpp{emplace\_result}. The first argument specify how the item at location \cpp{loc} should be
 printed to the screen. Valid options are: printing nothing, printing several lines without
-any highlighting, and printing a singe line with a portion of it highlighted with e.g.\@ a
+any highlighting, and printing a singe line with a portion of it highlighted with, e.g., a
 squiggly line. In this case is the single highlighted line option used. The second
-argument specify the the location, i.e.\@ filename, start line, end line, start column and end
+argument specify the the location, i.e., filename, start line, end line, start column, and end
 column. The third argument is a pointer to the rule from which the result originates from.
 Finally, the fourth argument is a string of a message explaining what the result is.
 \end{sloppypar}
 
 An excerpt for a relatively complicated searcher from the rule \ruleref{zeroone} is given
-below:
+as follows:
 \begin{cppp}
 const auto main_searcher = env.userdef_only_builder()
   .in_everywhere()
@@ -970,16 +970,16 @@ const auto off_searcher = env.userdef_only_builder()
 The goal is to find expressions of the form \mi{a=1 -> b=1}.
 The AST for it can be seen if redundant parentheses are added: \mi{((a)=(1)) -> ((b)=(1))}.
 The implication is the root node, the left and right child are equal-nodes and both
-equal-nodes have \mi{a}, \mi{b} or \mi{1} as children. \mi{a} and \mi{b} can in fact be
+equal-nodes have \mi{a}, \mi{b} or \mi{1} as children. Nodes \mi{a} and \mi{b} can in fact be
 any kind of expression, as long as the structure of the AST is the same.
 
 The searcher on line~1 search for an implication that has an equal-node as its left node,
 and that equal-node has an integer literal as any direct child. The expression
 \cpp{env.userdef\_only\_builder()} is a function that returns a \cpp{SearchBuilder} with some
-modified default settings, e.g.\@ recursively linting included non-library files is enabled.
+modified default settings, e.g., recursively linting included non-library files is enabled.
 When the main searcher has found a candidate is the right-hand side of the implication
-searched with the off-searcher defined on line~14. If that searcher also succeeds is the
-overall search complete if both integer literals are equal to \mi{1} and if \mi{a} and
+searched with the off-searcher defined on line~14. If that searcher also succeeds, then the
+overall search is complete if both integer literals are equal to \mi{1} and if \mi{a} and
 \mi{b} have domains of $\{0,1\}$. The off-searcher can only find one result or none at
 all, as it only uses \cpp{direct}. Annotated code for the combined search process is as follows:
 \begin{cppp}
@@ -1012,7 +1012,7 @@ and in some cases also how they are implemented.
 
 The rules can point out constructs that should be avoided if possible. Some operations,
 like dividing decision variables, is known to generally be bad in terms of solving time.
-Other rules point out situations that can be rewritten in another way which is better in
+Other rules point out situations that can be rewritten in another way that is better in
 some way. Producing fewer FlatZinc constraints is one example of an improvement. Fewer
 constraints is a good indicator for good performance, but it is not a guarantee that fewer
 constraints will result in better performance. Another similarly good indicator is the
@@ -1026,7 +1026,7 @@ a relevant set of AST-nodes, followed by checks on those nodes to determine whet
 should be reported or not. One important detail is that the rules never modify the AST, they
 are only searching and reading it.
 
-One design decision was to not rely on instances, i.e.\@ the rules should work even if all
+One design decision was to not rely on instances, i.e., the rules should work even if all
 parameters do not have values. The rationale is that all rules should be valid for all
 instances of a given model. This limits the ability of some rules, notably
 \ruleref{constvar}, as some conclusions it relies upon are impossible or difficult to prove.
@@ -1046,10 +1046,10 @@ array[1..4] of var int: good;
 array[5..9] of var int: bad;
 \end{mznnobreak}
 Flattened arrays always start at 1, so each array access to an array which do not start at
-1 has to first be translated. If the access is from a decision variable, i.e.\@ the \mi{i} in \mi{a[i]} is
-\mi{var}, is an additional decision variable introduced that translates \mi{i} to an index that
+1 has to first be translated. If the access is from a decision variable, i.e., the \mi{i} in \mi{a[i]} is
+\mi{var}, then an additional decision variable is introduced that translates \mi{i} to an index that
 starts at one. More details can be found under ``Arrays'' in ``flattening'' in the
-documentation\footnote{\url{https://www.minizinc.org/doc-2.5.5/en/flattening.html\#arrays}}
+documentation.\footnote{\url{https://www.minizinc.org/doc-2.5.5/en/flattening.html\#arrays}}
 
 \subsection{Compactible If-statement}\label{sec:rule:compactif}
 Some if-statements can be rewritten to a more compact form that tends to produce fewer
@@ -1093,11 +1093,11 @@ equality always hold is also used and explained in rule \ruleref{nonfuncdef}.
 
 This rule also checks if all values in an array is constrained to \mi{par}-values for
 simple cases, some limitations explained in Section~\ref{sec:disc:lintlimits}. The exact
-formulation below is searched for, i.e.\@ a \mi{forall} that constrains every element to a
+formulation below (Listing~\ref{lst:constvar}) is searched for, i.e., a \mi{forall} that constrains every element to a
 \mi{par}-value. The index sets has to be exactly the same, and there can not be a
 where-clause on the comprehension.
 
-\begin{mznnobreak}
+\begin{mznnobreak}[label=lst:constvar,caption={\null}]
 array[1..5] of var int: a;
 constraint forall(i in 1..5)(a[i] = 1);
 \end{mznnobreak}
@@ -1105,11 +1105,11 @@ constraint forall(i in 1..5)(a[i] = 1);
 \subsection{Effective 0..1 Variables}\label{sec:rule:zeroone}
 Some expressions can be rewritten to a often better performing expression if the domains in
 question happens to be $\{0,1\}$. For example, if there are two variables declared as
-\mi{var 0..1: a} and \mi{var 0..1: b} can the expression \mi{a=1 -> b=1} be rewritten
+\mi{var 0..1: a} and \mi{var 0..1: b}, then can the expression \mi{a=1 -> b=1} be rewritten
 to the equivalent \mi{a<=b}. In the same way can \mi{a=0 -> b=0} be rewritten to \mi{a>=b}.
 
 The produced FlatZinc of the rewrites is shorter and simpler than the original. The
-implication get reified, meaning that two additional boolean decision variables get
+implication get reified, meaning that two additional Boolean decision variables get
 introduced, one for each side. Additionally is three constraints produced, one for each
 side and a third that constrains at least one of the previous to be true. A cleaned up
 variant (no annotations and no predicate declarations) of the FlatZinc is as follows:
@@ -1131,18 +1131,20 @@ var 0..1: b;
 constraint int_lin_le(X_INTRODUCED_0_,[a,b],0);
 \end{mznnobreak}
 
+\begin{sloppypar}
 Additionally, this rule also suggests to rewrite \mi{sum(i in S)(a[i] = 1)} to the
 equivalent \mi{sum(a)} if \mi{array[S] of var 0..1: a}. This one is especially good
-as the first variant is doing implicit conversions between bools and integers
+as the first variant is doing implicit conversions between Booleans and integers
 (\mi{bool2int}) while the rewrite is not.
+\end{sloppypar}
 
 The expressions on either side of the implications (\mi{a} and \mi{b}) can be arbitrarily
 complex, as long as their domains can be calculated. If either depends on the current
-instance is a warning issued, since if that parameter is changed might these rewrites not
+instance, then a warning is issued, since if that parameter is changed might these rewrites not
 be valid any more, so the modeller should think twice before rewriting.
 
 \subsection{Element Predicate}\label{sec:rule:element}
-The predicate \mi{element} is a function which takes an index (\emph{i}), an array
+The predicate \mi{element} is a function that takes an index (\emph{i}), an array
 (\emph{a}) and a value (\emph{v}) and returns true if the element at \emph{i} in the array
 \emph{a} is equal to \emph{v}. \mi{element(i, a, v)} is a more verbose way of writing
 \mi{a[i] = v}, \mi{element} is even defined as such. The array
@@ -1151,11 +1153,11 @@ access syntax should be used instead to make the model easier to read.
 \subsection{Global Constraint Reified}\label{sec:rule:reifiedglobal}
 A global constraint called in a reified context \emph{can} be slow and inefficient,
 and this rule will mark all those occasions. Being reified means that the result of the global
-constraint is bound to a boolean variable, i.e.\@
+constraint is bound to a Boolean variable, i.e.,
 \begin{mznnobreak}
 var bool: x = all_different(a);
 \end{mznnobreak}
-Reification happens when the global constraint is called in a context which is not $\land$.
+Reification happens when the global constraint is called in a context that is not $\land$.
 For example, this global constraint will be reified:
 \begin{mznnobreak}
 constraint b \/ all_different(a);
@@ -1167,7 +1169,7 @@ constraint all_different(b) /\ all_different(c);
 \end{mznnobreak}
 The official MiniZinc documentation talks more about this under ``Reified and half-reified
 predicates''\footnote{\url{https://www.minizinc.org/doc-2.5.5/en/fzn-spec.html\#reified-and-half-reified-predicates}}
-and under ``Reification''\footnote{\url{https://www.minizinc.org/doc-2.5.5/en/flattening.html\#reification}}.
+and under ``Reification''.\footnote{\url{https://www.minizinc.org/doc-2.5.5/en/flattening.html\#reification}}
 
 The linter will consider all functions from the standard library as global constraints,
 except for those that do not have to be explicitly included, like \mi{forall}.
@@ -1195,7 +1197,7 @@ Only decision variables are marked as parameter values can only be read from, an
 parameters to the whole model itself, so they have to be understood anyway.
 
 \subsection{No Domain on Variables}\label{sec:rule:nodomain}
-Variables can specify a domain which the variable can take values from. It is always
+Variables can specify a domain in which the variable can take values from. It is always
 recommended to specify a tight domain for decision variables as not specifying one at all
 can make the domain \emph{very} large and makes the solving unnecessarily slow.
 \begin{mznnobreak}
@@ -1211,7 +1213,7 @@ var int: also_good2;
 constraint also_good2 = good;
 \end{mznnobreak}
 This rule marks unassigned decision variables that have no explicit domain given.
-More can be read in ``Bounds analysis''\footnote{\url{https://www.minizinc.org/doc-2.5.5/en/efficient.html\#variable-bounds}}.
+More can be read in ``Bounds analysis''.\footnote{\url{https://www.minizinc.org/doc-2.5.5/en/efficient.html\#variable-bounds}}
 
 \subsection{Non-functionally Defined Variables Not in Search Annotation}\label{sec:rule:nonfuncdef}
 One of the rules of the MiniZinc challenge~\cite{MZN:Challenge} states: ``Each solve item
@@ -1224,12 +1226,12 @@ challenge.
 
 A decision variable is functionally defined if it is uniquely defined in terms of other
 variables. An example of this is a variable constrained under equality to some expression.
-In the example below is the variable \mi{a} functionally defined in terms of \mi{b} and \mi{c}.
-If \mi{b} and \mi{c} are fixed to some values can the value of \mi{a} be obtained. In this
+In the example below (Listing~\ref{lst:nonfuncdef}) is the variable \mi{a} functionally defined in terms of \mi{b} and \mi{c}.
+If \mi{b} and \mi{c} are fixed to some values, then can the value of \mi{a} be obtained. In this
 case must \mi{b} and \mi{c} be included in the search annotation, it is optional for
 \mi{a} to be included.
-Simple assignment is also a way to functionally defined variables, i.e.\@ \mi{var int: a=5*b+c}.
-\begin{mznnobreak}
+Assignment is also a way to functionally defined variables, i.e., \mi{var int: a=5*b+c}.
+\begin{mznnobreak}[label=lst:nonfuncdef,caption={\null}]
 var int: a; var int: b; var int c;
 constraint a = 5*b + c;
 solve
@@ -1246,7 +1248,7 @@ guaranteed to hold. The equality hold if it is under conjunction nodes (\mi{/\\}
 
 Arrays are approximated in the sense that they are treated as one unit. This means that
 only one value in the array needs to be functionally defined for the whole array to be
-considered functionally defined, i.e.\@ \mi{xs[1]=3}. This limitation is present because
+considered functionally defined, i.e., \mi{xs[1]=3}. This limitation is present because
 it is difficult to know whether all values in an array are functionally defined or not
 (see Section~\ref{sec:disc:lintlimits}). Since all values in arrays usually are
 constrained together with \mi{forall} is this approximation not too incorrect.
@@ -1255,7 +1257,7 @@ Another way a decision variable can be functionally defined is via global constr
 any predicate). For example, \mi{count(zs, 2, z)} constrains \mi{z} to be equal to the
 number of times the value \mi{2} occurs in the array \mi{zs}, which means that \mi{z} is
 functionally defined. A possible definition of \mi{count} is:
-\begin{mznnobreak}
+\begin{mznnobreak}[label=lst:count,caption={\null}]
 predicate count(array[int] of var int: xs,
                 var int: y, var int: c) =
   c = sum(i in xs)(i = y);
@@ -1263,7 +1265,7 @@ predicate count(array[int] of var int: xs,
 
 The function definitions of all function calls inside top-level constraints, that are
 guaranteed to hold, are searched. If parameter of the function definition is functionally
-defined is the corresponding argument also functionally defined. In the example above is
+defined, then the corresponding argument is also functionally defined. In the example above (Listing~\ref{lst:count}) is
 \mi{c} functionally defined in the definition of \mi{count}, that means that \mi{z} in the
 function call \mi{count(zs, 2, z)} also is functionally defined. The definitions are
 recursively searched for as long as the calls are in a conjunctive context (\mi{/\\}
@@ -1313,17 +1315,17 @@ purpose is break symmetries should be marked as such:
 constraint symmetry_breaking_constraint(<@\dots@>);
 \end{mznnobreak}
 Some solving techniques, like local search, are negatively impacted
-by symmetry breakers, so solvers which use technologies like that ignore all marked
-symmetry breaking constraints. So this rule blindly marks global constraints which are
+by symmetry breakers, so solvers that use technologies like that ignore all marked
+symmetry breaking constraints. So this rule blindly marks global constraints that are
 normally used for breaking symmetries. More general theory about this can be found in
-``Effective modelling practices''\footnote{\url{https://www.minizinc.org/doc-2.5.5/en/efficient.html\#symmetry}}.
+``Effective modelling practices''.\footnote{\url{https://www.minizinc.org/doc-2.5.5/en/efficient.html\#symmetry}}
 
 \subsection{Unused Variables and Functions}\label{sec:rule:unused}
 This rule report on variables and functions that are not used anywhere.
 Used in this case means to be mentioned inside constraints, the solve statement or other
-functions and variables which are also in use. The output-statement is an exception and
+functions and variables that are also in use. The output-statement is an exception and
 do not contribute to the usage of variables and functions. The rationale is that only being
-mentioned in the output statement does not contribute to the model, i.e.\@ the amount of
+mentioned in the output statement does not contribute to the model, i.e., the amount of
 solutions do not change.
 
 To calculate whether a variable or function is unused is a dependency graph first
@@ -1346,7 +1348,7 @@ solve minimize f();
   \smallskip%
   \caption{A dependency graph of an example model. An edge from a node to another means that
     the first node is directly depending on the other. For example is \mi{M} using \mi{N}.
-    The green filled in nodes (\mi{f}, \mi{N}, \mi{x} and \mi{K}) are in use, and the blue
+    The green filled in nodes (\mi{f}, \mi{N}, \mi{x}, and \mi{K}) are in use, and the blue
     filled node (\mi{J}) is ignored as it is contained inside of \mi{M}.}%
   \label{fig:unused:graph}
 \end{figure}
@@ -1354,17 +1356,17 @@ solve minimize f();
 After the graph has been constructed are all constraints and solve-statements checked for
 mentions of any variables and functions. Each one and all of its
 dependants marked as used. In this example is \mi{f} used in the solve-statement, so
-\mi{f}, \mi{N}, \mi{x} and \mi{K} are thus marked as used. In this case are there no
+\mi{f}, \mi{N}, \mi{x}, and \mi{K} are thus marked as used. In this case are there no
 constraints, so \mi{J} and \mi{M} are left as unused.
 
 Reporting both \mi{J} and \mi{M} in this case might seem excessive since \mi{J} is
-``inside'' of \mi{M}, so if \mi{M} is unused is it obvious that \mi{J} also is unused.
+``inside'' of \mi{M}, if \mi{M} is unused, then it follows that \mi{J} also is unused.
 This is even more of a problem with unused functions, as each argument and variable inside
 of it also will be individually reported. To solve this and only report on the outermost
 variable or function is another graph constructed, a containment graph. In this case is
 only \mi{J} inside another variable or function, namely \mi{M}. This containment graph is
 inspected after all variables and functions have been deemed used or unused, and each
-unused variable or function which is inside something else which also is unused gets
+unused variable or function that is inside something else, that also is unused, gets
 ignored. So in this case is only \mi{M} reported to the user as unused.
 
 \subsection{Variables in Generators}\label{sec:rule:vargen}
@@ -1380,7 +1382,7 @@ A \mi{forall} is unrolled into several constraints when flattened, one for each
 value of \mi{i} in this case. But when the exact amount of constraints is unknown must the
 flattener do more complicated things. More about unrolling can be read in ``Unrolling
 Expressions''\footnote{\url{https://www.minizinc.org/doc-2.5.5/en/flattening.html\#unrolling-expressions}}
-and ``Hidden Option Types''\footnote{\url{https://www.minizinc.org/doc-2.5.5/en/optiontypes.html\#hidden-option-types}}.
+and ``Hidden Option Types''.\footnote{\url{https://www.minizinc.org/doc-2.5.5/en/optiontypes.html\#hidden-option-types}}
 
 \subsection{Variables in If and Where}\label{sec:rule:varif}
 This rule will blindly mark decision variables used in \mi{where} clauses and the deciding
@@ -1408,7 +1410,7 @@ The unmodified files are provided in Appendix~\ref{app:nsp}.
 \subsection{Model Description}
 The NSP problem is a satisfaction problem where \mi{n_nurses} are to be scheduled over a
 period of \mi{sched_period} days. Each day has \mi{n_shifts} shifts, and each nurse may be
-assigned to a single shift each day. There is a coverage requirement, i.e.\@ each shift
+assigned to a single shift each day. There is a coverage requirement, i.e., each shift
 require a minimum amount of nurses to be assigned to each shift. The required coverage a number between 0 and
 \mi{n_nurses}. The required coverage is given in the parameter \mi{nurses_coverage}, which
 is a 2D-array where \mi{nurses_coverage[p,s]} is the number of required nurses for day
@@ -1523,8 +1525,8 @@ predicate day_distribute(int: i) = let {
   constraint \mi{distribute} counts how many times all values in the middle argument occur
   in the third array and stores those counts in the first array. For example,
   \mi{row_coverage[1]} is equal to the number of times \mi{shifts_values[1]} occur in
-  \mbox{\mzninlinebar{[nurses_schedule[j,i] | j in nurses]}} (which is an array with the
-  shifts all nurses are scheduled to work on for the current day) and so on for all other
+  \mbox{\mzninlinebar{[nurses_schedule[j,i] | j in nurses]}}, which is an array with the
+  shifts all nurses are scheduled to work on for the current day, and so on for all other
   shifts.
 \end{sloppypar}
 
@@ -1533,7 +1535,7 @@ specify the upper and lower bound for how many times a nurse can be scheduled to
 set of shifts over a fixed time window. For example, in Table~\ref{tab:nsp:inst} are two rules
 specified, the first one constrains each nurse to have one or two days off (shift 4) over
 all groups of three consecutive days. These rules are added to the model in the same
-manner as the previous one, i.e.\@ a predicate and a \mi{forall}.
+manner as the previous one, i.e., a predicate and a \mi{forall}.
 \begin{mznnobreak}[caption={\null}]
 constraint forall (i in rules, j in nurses) (
   apply_rule_for_nurse(i, j)
@@ -1556,7 +1558,7 @@ predicate apply_rule_for_nurse (int: i, int: j) = let {
     rule_for_nurse
   );
 \end{mznnobreak}
-This predicate define an array \mi{rule_for_nurse}, if \mi{rule_for_nurse[r]=1} is nurse
+This predicate define an array \mi{rule_for_nurse}, if \mi{rule_for_nurse[r]=1}, then is nurse
 \mi{j} scheduled to a ``target'' (\mi{rules_sets}) of rule \mi{i}. The \mi{forall} specify
 this relationship for all days. \mi{sliding_sum} is a global constraint that constrains
 all sliding sums of a specified length in an array to be between an upper and lower bound.
@@ -1572,7 +1574,7 @@ access to that solved the model in a fast time were COIN\babelhyphen{nobreak}BC~
 only from Chuffed as COIN\babelhyphen{nobreak}BC always performed the same in every case.
 The column ``Original'' is the execution times for the unmodified model.
 Each modification to the model will be displayed in a format similar to \texttt{diff -u},
-i.e.\@ red lines prefixed with \texttt{-} indicate a line from the \emph{old} model that
+i.e., red lines prefixed with \texttt{-} indicate a line from the \emph{old} model that
 got removed, and green lines prefixed with \texttt{+} indicate \emph{new} lines that got added.
 
 \paragraph{Suggestion 1}
@@ -1648,7 +1650,7 @@ This is not a suggestion from the linter itself, but an
 observation from applying the previous suggestions.
 The global constraint \mi{distribute} in Listing~\ref{lst:distribute} can take all of its
 arguments as decision variables. There is a similar global constraint called
-\mi{global_cardinality} which does the same thing, except that the middle argument can
+\mi{global_cardinality} that does the same thing, except that the middle argument can
 only accept parameters, and that the first and third argument swapped places. Since
 \mi{shifts_values} does not consist of decision variables anymore can
 \mi{global_cardinality} be used instead.
@@ -1691,7 +1693,7 @@ were performed on my average desktop computer).
 The exponential
 worst-case complexity presented in Section~\ref{sec:algo:anal} does not seem to cause too much
 of an issue. Most of all top-level expressions in all models in the MiniZinc Benchmarks are
-relatively small, i.e.\@ they have a few number on AST nodes,
+relatively small, i.e., they have a few number on AST nodes,
 so the input was not too big to cause an issue.
 A few top-level expression had a very large number
 of nodes though, but they also seemed like they were auto generated.
@@ -1708,7 +1710,7 @@ of an AST. The current algorithm was chosen because it was easier to implement a
 There were many rule hits throughout all models in the MiniZinc Benchmarks, which is not
 surprising as most rules are general recommendations, so most of these hits are probably
 false positives. It does not mean that they are useless though, as they will make the
-modeller think twice about e.g.\@ dividing a decision variable with another. But it might
+modeller think twice about, e.g., dividing a decision variable with another. But it might
 also get annoying to see many yellow squiggly lines in an IDE or text editor.
 
 All rules were triggered at least twice when run on all models in the MiniZinc benchmarks,
@@ -1719,7 +1721,7 @@ either is an obscure feature, or that people know that it is usually slow.
 which is expected since those rules are broad and do not do many exotic checks.
 Doing implications and the like on variables is also common, so these rules are maybe too broad.
 
-It was surprising to see that there were any models at all which had no domains on their
+It was surprising to see that there were any models at all that had no domains on their
 decision variables, and models that assigned constant values to their decision variables.
 But as the benchmark results show in Table~\ref{tab:nsp:bench} for the reviewed model in
 Section~\ref{sec:nsp}, it is not always strictly better for all solvers to perform the
@@ -1730,15 +1732,15 @@ The final surprising thing was that there were a lot of matches for \ruleref{unu
 it was in fact the \emph{most} matched one. I did not look at all of them, but
 there were models that had variables that were only declared and never mentioned again,
 and those should definitely be removed.
-Some looked like they were forgotten model parameters, which is easy to leave behind,
-especially if there are a lot of them with one character long names. I think that this
+Some looked like they were forgotten model parameters from previous iterations of the model.
+I think that this
 rule will be very useful to have. It is a lot easier to understand a model if it only contains
 what it needs to contain, less to read and less to understand.
 
-There were some unused variables which were only mentioned in the output-statement. The
+There were some unused variables that were only mentioned in the output-statement. The
 output statement should maybe count towards usage after all? It seemed common to output
 some calculated statistics from a solution, like the maximum element in an array. There is
-an \mi{output_only} annotation which could maybe be used here to allow variables only used
+an \mi{output_only} annotation that could maybe be used here to allow variables only used
 in output to exist. Someone more knowledgeable will have to figure out the answer to that
 question.
 
@@ -1749,7 +1751,7 @@ used. But \mi{i} will be reported here as being unused, and there is nothing to 
 it. It is a parser error to write \mzninlinebar{[0 | \_ in 1..k]} instead. So the lint rule must be
 ignored here, or a special case should be introduced for that rule.
 
-It is also easy to obfuscate a model to make a rule not match at all. Consider
+It is also possible to obfuscate a model to make a rule not match at all. Consider
 the example in \ruleref{zeroone}, where
 \mi{a=1 -> b=1} could be rewritten to \mi{a<=b} since both variables have a domain of
 $\{0,1\}$. It is equally valid to write \mi{a>=1 -> b=1}, or \mi{(true /\\ a=1) -> b=1},
@@ -1775,7 +1777,7 @@ linter would know that all values were accessed. Some rules will provide results
 even if they depend on parameters, but the linter will warn the user in those cases so an
 accidental rewrite that breaks the model in the future is not made.
 
-The author of the original lint~\cite{lint} talk about similar problems with lint, i.e.\@
+The author of the original lint~\cite{lint} talk about similar problems with lint, i.e.,
 that some facts are impossible to prove. For example can determining whether a function is
 unused depend on input data, a function is maybe only called if a certain file exists,
 and that is impossible to determine statically, at least in general. So original lint
@@ -1789,14 +1791,14 @@ Not having to create a correct and conforming parser and type checker that follo
 MiniZinc language specification made the process of implementing this project easier.
 There were some quirks that had to be worked around though, as the parser and type
 checker, ideally, should not be modified. There were for example \mi{enum}-declarations
-from the standard library which looked like they were declared in the main file being
+from the standard library that looked like they were declared in the main file being
 linted, and not the file they were originally defined in, so those had to be specially
 filtered away.
 
 Some generator expressions had the ordering on their \mi{where} clauses swapped around for
 optimisation purposes \emph{before} flattening. That also made that expression introduced,
 so the original file position information where it came from got lost. That causes
-problems for the standard out printer which needs to know where that generator is written
+problems for the standard out printer, which needs to know where that generator is written
 so it can print it exactly as is.
 
 The method for figuring out whether something is user-defined or whether it comes from the
@@ -1817,7 +1819,7 @@ standard out printer fails and prints an error if it tries to print a sole integ
 literal. A way to circumvent this would be to use the pretty printer when printing a
 location that is flagged as introduced.
 
-A similar annoyance is that the locations of binary operations, e.g.\@ \mi{/\\}, are not
+A similar annoyance is that the locations of binary operations, e.g., \mi{/\\}, are not
 saved either. The locations of the two sides are available though, so the location of the
 operator itself can be approximated by taking the location between the left and the right
 side.
@@ -1826,11 +1828,11 @@ side.
 The searcher presented in Section~\ref{sec:searcher} searches for a path in the AST, and that
 has been sufficient for most rules, but the rule \ruleref{zeroone} required a little bit
 more. That rule had to find expression on the form \mi{a=1 -> b=1}, but the current
-searcher can only look for \mi{a=1 -> rhs}, i.e.\@ only one of the sides. This problem was
+searcher can only look for \mi{a=1 -> rhs}, i.e., only one of the sides. This problem was
 circumvented by starting another search on \textit{rhs} that looked for \mi{b=1} after a
 position for the left-hand side and implication was found. This particular example is
 explained in Section~\ref{sec:impl:rules}. A future work could be to
-implement this kind of functionality on the searcher itself, i.e.\@ adding the
+implement this kind of functionality on the searcher itself, i.e., adding the
 ability to search for \emph{sub-trees}.
 
 \section{Future work}
@@ -1840,7 +1842,7 @@ colours to standard out.
 Some options and configuration should be added to make the linter more useful. Notably
 the ability to choose what rules to use and what to ignore. Being able to choose what
 rules to use as command line arguments and to ignore individual matches by adding special
-comments in the model itself is useful to have. In other words, a proper command-line
+comments in the model itself are useful to have. In other words, a proper command-line
 interface needs to be implemented.
 
 The rules presented in this report are far from everything that is interesting to check
