@@ -10,8 +10,6 @@
 \usepackage{enumitem}
 \usepackage{csvsimple}
 % \usepackage[perpage]{footmisc}
-\usepackage{siunitx}
-\sisetup{detect-all} % not math font or something
 \usepackage{tabularx}
 \usepackage[nottoc,numbib]{tocbibind}
 
@@ -641,6 +639,7 @@ more complicated constructs.
 \subsubsection{MiniZinc Abstract Syntax Tree}
 \begin{figure}[ht]
   \centering
+  \newif\ifshowastnumbers\showastnumberstrue
   \input{fig-ast-searcher}
   \caption{Illustration of two ASTs. The left one corresponds to \mi{constraint x+42=y},
     and the right one corresponds to \mi{var int: x=1+1+1+1}. The blue numbers are

@@ -16,3 +16,6 @@ _region_.tex
 /README.md
 /IEEEtran.zip
 /instr*.tex
+*.nav
+*.snm
+*.vrb

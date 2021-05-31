@@ -1,0 +1,388 @@
+\documentclass[aspectratio=169]{beamer} %handout
+\usepackage{xcolor}
+
+\definecolor{mznblue}{HTML}{1491eb}
+\definecolor{mzngray}{HTML}{4a4a49}
+\usecolortheme[named=mznblue]{structure}
+\usecolortheme{seahorse}
+\usecolortheme{orchid}
+\setbeamercolor{palette primary}{use=structure,bg=mznblue,fg=white}
+\setbeamertemplate{navigation symbols}{}
+\setbeamertemplate{footline}{%
+  % \begin{beamercolorbox}{section in head/foot}
+  \vskip1pt%
+  \scriptsize%
+  \parbox[t][1em]{\paperwidth}{%
+  \hspace*{10pt}\insertsection%
+  \ifx\insertsubsection\empty\null\else~\texttt{>>}~\fi%
+  \insertsubsection%
+  \hfill%
+  % \tiny%
+  \insertframenumber%\,/\,\insertdocumentendpage%
+  \hspace*{10pt}%
+  }%
+  \vskip4pt%
+  % \end{beamercolorbox}%
+}
+
+\usepackage[english]{babel} %göra så att autogenererade saker blir på svenska
+\usepackage[T1]{fontenc} %rendera åäö bättre
+\usepackage[utf8]{inputenc} %använda utf-8
+% \usepackage[parfill]{parskip} %gör så att styckena blir den "rätta" sorten
+% \usepackage[indention=0.5cm]{caption}
+\usepackage{mathtools}
+% \usepackage{float}
+% \usepackage{enumitem}
+% \usepackage[margin=1in]{geometry}
+\usepackage{helvet}
+% \usepackage{courier}
+\usepackage{graphicx}
+
+% \newcommand\rebecka{asd}
+% \ifdefined\rebecka yay \else nej \fi
+
+\newif\iffast
+\input{common.tex}
+
+\title{MiniZinc Linter}
+\subtitle{Tool for Static Model Analysis}
+\author{Erik Rimskog}
+\institute{Uppsala University}
+\date{}
+% \logo{hej}
+
+\AtBeginSection[]{
+  \begin{frame}
+    \frametitle{Outline}
+    \tableofcontents[currentsection]
+  \end{frame}
+}
+\AtBeginSubsection[]{
+  \begin{frame}
+    \frametitle{Outline}
+    \tableofcontents[currentsection,currentsubsection]
+  \end{frame}
+}
+
+\begin{document}
+
+\begin{frame}[plain,noframenumbering]
+  \titlepage
+\end{frame}
+
+\begin{frame}{Outline}
+  \tableofcontents
+\end{frame}
+
+\section{MiniZinc}
+% förklara MiniZinc
+% introducera TSP
+% MiniZinc + TSP = <3
+% diagrammet över hela mzn
+\begin{frame}{MiniZinc?}
+  \begin{columns}[onlytextwidth]
+    \column{0.2\textwidth}
+    \includegraphics[width=\textwidth]{mznlogo.png}
+    % \vspace*{4cm}
+
+    \column{0.75\textwidth}
+    \begin{block}{What it is}
+      Toolchain for solving combinatorial optimisation problems\pause{} using \emph{decision variables} ($x$) and \emph{constraints} ($x\neq4$).\pause{} It is solver independent.
+    \end{block}
+  \end{columns}
+
+  \vspace{0.75cm}
+  \pause
+  \begin{block}{Travelling Salesman Problem}
+    Find an order to visit $n \in \elnaturale^+$ cities in to minimise the total distance travelled.
+  \end{block}
+\end{frame}
+
+% \begin{frame}{Travelling Salesman Problem}
+%   \begin{block}{Problem Statement}
+%     Find an order to visit $n \in \elnaturale^+$ cities in to minimise the total distance travelled.
+%   \end{block}
+%   \pause
+%   \begin{center}
+%     \input{fig-tsp}
+%   \end{center}
+% \end{frame}
+
+% \begin{frame}[fragile]{Travelling Salesman Problem Modelled}
+% \begin{mznno}
+% int: N = 4;                 % Amount of cities<@\pause@>
+% set of int: Ns = 1..N;      % 1,2 .. N<@\pause@>
+% array[Ns,Ns] of int: dist = % dist[1,2] = 15
+%   [| 0,15,20,26
+%    |15, 0, 5,12
+%    |20, 5, 0, 5
+%    |26,12, 5, 0|];<@\pause@>
+% array[Ns] of var Ns: next;  % decision variables<@\pause@>
+% include "globals.mzn";
+% constraint circuit(next);   % connect as a loop<@\pause@>
+% solve minimize sum(i in Ns) % minimize total distance
+%                   (dist[i,next[i]]);<@\pause@>
+% % solve satisfy;
+% \end{mznno}
+% \end{frame}
+
+% \begin{frame}{MiniZinc Under the Hood}
+%   \begin{block}{Solver}
+%     Software that finds solutions to a model.
+%   \end{block}
+%   \pause
+%   \begin{center}
+%     \input{fig-minizinc}
+%   \end{center}
+% \end{frame}
+
+\section{Linter}
+% förklara vad en linter är
+% förklara några regler
+% begränsingar?
+\begin{frame}{Linter?}
+  \begin{block}{Linter}
+    A tool to perform static analysis on e.g.\@ source code.
+    \pause
+    \begin{itemize}
+      \item Error-prone constructs
+      \item Style
+      \item Performance
+      \item Simplify the code
+    \end{itemize}
+    \pause
+    \textbf{Examples:} ESLint, HLint and Clippy.
+  \end{block}
+
+  \pause
+  \begin{alertblock}{Not precise!}
+    Many statements that can't be proven.
+  \end{alertblock}
+\end{frame}
+
+\begin{frame}{Linter Rules}
+  \begin{block}{Rule}
+    A linter performs several checks, also called rules.
+    Each rule can be disabled or enabled individually.
+  \end{block}
+\end{frame}
+
+\begin{frame}{Example Execution}
+  \texttt{\textcolor{green}{\bfseries\$}\;lzn model.mzn}\bigskip
+
+  \includegraphics[width=\textwidth]{lznexample.png}
+\end{frame}
+
+\section{Rules}
+
+\begin{frame}[fragile]{Unused Variables and Functions}
+  \begin{block}{Motivation}
+    Unused variables and functions don't contribute to the model and should be removed.\pause{}
+    Being mentioned inside constraints or other used functions counts as usage.
+  \end{block}
+
+  \pause
+  \begin{exampleblock}{Example}
+  \begin{mznno}
+var int: a;
+var int: b; % unused
+constraint a > 2;
+solve satisfy;
+  \end{mznno}
+  \end{exampleblock}
+\end{frame}
+
+\begin{frame}[fragile]{Unused Variables and Functions Cont.}
+  \begin{block}{Steps}
+    \textbf{1.}~Find all variables and functions\quad
+    \textbf{2.}~Calculate what depends on what\quad
+    \textbf{3.}~Find all uses and recursively mark as used\quad
+    \uncover<4->{\textbf{4.}~Simplify output}
+  \end{block}
+
+  \pause
+  \begin{columns}[onlytextwidth]
+    \column{0.6\textwidth}
+    \begin{mznno}
+int: K = 1;
+int: N = 1;
+int: M = let {int: J = 5} in J+N;
+var 0..K: x;
+function var int: f() = x+N;
+solve minimize f();
+    \end{mznno}
+    \column{0.4\textwidth}
+    \pause
+    \input{fig-unused-graph}
+  \end{columns}
+\end{frame}
+
+\begin{frame}[fragile]{Missing Domain on Decision Variables}
+  \begin{block}{Motivation}
+    Decision variables should \alert{always} have tight domain to limit the amount of potential values.
+  \end{block}
+
+  \pause
+  \begin{columns}[t,onlytextwidth]
+    \column{0.47\textwidth}
+  \begin{exampleblock}{Bad}
+    \begin{mznno}
+var int: a;
+    \end{mznno}
+  \end{exampleblock}
+
+  \column{0.47\textwidth}
+  \begin{exampleblock}{Good}
+    \begin{mznno}
+var 1..5: a;<@\pause@>
+var int: b = a+1;
+constraint b = a+1;
+    \end{mznno}
+  \end{exampleblock}
+  \end{columns}
+\end{frame}
+
+\begin{frame}[fragile]{Missing Domain on Decision Variables Cont.}
+  \begin{block}{Steps}
+    \begin{enumerate}
+      \item Find all decision variables
+      \item Search constraints for equalities
+    \end{enumerate}
+  \end{block}
+
+  \pause
+  \begin{block}{$\land$-context}
+    \begin{mznno}
+constraint a=2;<@\pause@>
+constraint a=2 /\ ...;<@\pause@>
+constraint forall([a=2]);
+    \end{mznno}
+  \end{block}
+
+  \pause
+  \begin{alertblock}{Not always true}
+    \begin{mznno}
+constraint b=2 -> a=2;
+    \end{mznno}
+  \end{alertblock}
+\end{frame}
+
+\begin{frame}[fragile]{General Limitations}
+  \begin{block}{Obfuscate}
+    \begin{mznno}
+constraint a=2 \/ false;
+    \end{mznno}
+  \end{block}
+
+  \pause
+  \begin{block}{Instance variables}
+    No reliance on instance variables (parameters).\pause
+    \begin{mznno}
+int: A = 5;
+array[1..A] of var int: xs;
+constraint forall(i in 1..5)(xs[i] = ...)
+    \end{mznno}
+  \end{block}
+\end{frame}
+
+\section{Implementation}
+% förklara AST
+% återanvända parser
+% förklara searchern
+% regel-interfacet ??
+\begin{frame}{Abstract Syntax Tree}
+  \begin{columns}
+    \column{0.67\textwidth}
+  \begin{block}{Parser}
+    Reads text and structures it into a data structure that can be processed, AST is a common one.
+  \end{block}
+
+  \pause
+  \begin{block}{MiniZinc's parser was reused}
+    \begin{itemize}
+      \item Easier to maintain one than two
+      \item Faster development
+      \item Use existing functionality like the typechecker
+    \end{itemize}
+  \end{block}
+
+  \column{0.27\textwidth}
+  \pause
+  \begin{center}
+    \includegraphics[width=0.9\textwidth]{cpp.png}
+  \end{center}
+  \end{columns}
+\end{frame}
+
+\begin{frame}[fragile,label=mznast]{MiniZinc AST}
+  \begin{mznno}
+   constraint x+42 = y;       var int: x = 1+1+1+1;
+ \end{mznno}
+ \hspace{2.75cm}$\Updownarrow$\hspace{6.3cm}$\Updownarrow$
+ \bigskip
+ \newif\ifshowastnumbers\showastnumbersfalse
+ \input{fig-ast-searcher}
+\end{frame}
+
+\begin{frame}{AST Searcher}
+  \begin{block}{Visitors}
+    Using existing visitors would have been \alert{verbose}. They are better for processing the whole tree.
+  \end{block}
+
+  \pause
+  \begin{block}{Searcher}
+    Find locations in an AST from a path specification.\pause{}
+    \texttt{>} means directly under, \texttt{>{}>} means under at any depth.
+    \begin{itemize}
+      \item \texttt{+ >{}> int}\pause
+      \item \texttt{= > id}\pause
+      \item \texttt{let > = >{}> + > id}
+    \end{itemize}
+  \end{block}
+\end{frame}
+
+\againframe{mznast} %TODO: animate?
+
+\begin{frame}{Overview}
+  \begin{columns}
+    \column{0.67\textwidth}
+    \begin{center}
+      \input{fig-overview}
+    \end{center}
+
+    \pause
+    \column{0.3\textwidth}
+    \begin{enumerate}
+      \item Each rule reads the AST from the environment\pause
+      \item They write back results\pause
+      \item The results are displayed in some way
+    \end{enumerate}
+  \end{columns}
+\end{frame}
+
+% \section{Results}
+% förklara nurses
+% minizinc benchmarks
+% \section{Future Work}
+% \begin{frame}{Future Work}
+%   \begin{itemize}
+%     \item Commandline interface\pause
+%     \item Config language
+%   \end{itemize}
+% \end{frame}
+
+\section{Summary}
+\begin{frame}{Summary}
+  \begin{itemize}
+    \item MiniZinc is a modelling language that can be used on different solvers.
+    \item Decision variables are unknows and constraints constrain them.
+    \item A linter for static analysis of models was created.
+    \item Some things are impossible to deduce.
+    \item Written in C++.
+    \item The MiniZinc parser was reused.
+    \item An AST searcher searches for locations of interest in models.
+  \end{itemize}
+\end{frame}
+
+\end{document}
+

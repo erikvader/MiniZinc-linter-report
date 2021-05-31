@@ -26,7 +26,10 @@
   mathescape=true,
   breaklines=true,
   % prebreak=\raisebox{0ex}[0ex][0ex]{\ensuremath{\space\red{\swarrow}}},%\hookrightarrow
-  postbreak=\raisebox{0ex}[0ex][0ex]{\ensuremath{\textcolor{black}{\hookrightarrow\space}}},%\hookrightarrow
+  % postbreak=\raisebox{0ex}[0ex][0ex]{\ensuremath{\textcolor{black}{\hookrightarrow\space}}},%\hookrightarrow
+  % NOTE: beamer doesn't like color in postbreak.
+  % https://tex.stackexchange.com/questions/586477/missing-number-treated-as-zero-within-beamer-and-lstcustom
+  postbreak=\raisebox{0ex}[0ex][0ex]{\ensuremath{\hookrightarrow\space}},%\hookrightarrow
   breakatwhitespace=true,
   breakindent=0pt, % was: 20pt
   escapeinside={{<@}{@>}}

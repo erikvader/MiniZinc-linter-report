@@ -1,8 +1,8 @@
-\newcounter{asdasd}
+\ifshowastnumbers\newcounter{asdasd}\fi
 \begin{tikzpicture}[
 label distance=-10pt,
 every label/.style={blue},
-lbl/.style={label=160:{\stepcounter{asdasd}\arabic{asdasd}}}
+lbl/.style={label=160:{\ifshowastnumbers\stepcounter{asdasd}\arabic{asdasd}\fi}}
 ]
   \node at (0, 0) {\mi{constraint}} [sibling distance=60pt]
   child {node[lbl] {\cpp{BinOp} =}
@@ -19,7 +19,7 @@ lbl/.style={label=160:{\stepcounter{asdasd}\arabic{asdasd}}}
       child {node[lbl] {\cpp{IntLit} 1}}
       child {node[lbl] {\cpp{IntLit} 1}}
     }
-    child {node[label=177:{\stepcounter{asdasd}\arabic{asdasd}}] {\cpp{BinOp} +}
+    child {node[label=177:{\ifshowastnumbers\stepcounter{asdasd}\arabic{asdasd}\fi}] {\cpp{BinOp} +}
       child {node[lbl] {\cpp{IntLit} 1}}
       child {node[lbl] {\cpp{IntLit} 1}}
     }
