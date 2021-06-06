@@ -19,11 +19,6 @@
 
 \usepackage{UppsalaExjobb}
 
-%TODO: flytta diskussion till discussion
-%TODO: referera till Pekka
-%TODO: säg något i future work (elr discussion) att searchern borde kunna söka efter träd
-%i framtiden, och inte bara paths
-
 \newcommand{\leblanc}{\clearpage\thispagestyle{empty}\null\clearpage}
 \newcommand{\ruleref}[1]{``\nameref{sec:rule:#1}'' (Section~\ref{sec:rule:#1})}
 
@@ -1508,13 +1503,18 @@ For example, \mi{sliding_sum(0, 2, 2, [1, 2, 3, 4])} is the same as $0 \leq 1+2 
 0 \leq 2+3 \leq 2 \land 0 \leq 3+4 \leq 2$.
 
 \subsection{Linter Results}\label{sec:nsp:results}
-\input{tab-nsp-bench.tex}
 The model was rewritten to satisfy the suggestions from the linter and each rewrite got
-benchmarked, the results are displayed in Table~\ref{tab:nsp:bench}. The two solvers I had
-access to that solved the model in a fast time were COIN\babelhyphen{nobreak}BC~\cite{coinbc} (version
-2.10.5/1.17.5) and Chuffed~\cite{Chuffed} (version 0.10.4). The times in the table are
-only from Chuffed as COIN\babelhyphen{nobreak}BC always performed the same in every case.
-The column ``Original'' is the execution times for the unmodified model.
+benchmarked.
+The solvers I had access to were COIN\babelhyphen{nobreak}BC~\cite{coinbc} (version
+2.10.5/1.17.5), Gecode~\cite{gecode} (version 6.3.0) and Chuffed~\cite{Chuffed} (version 0.10.4).
+No concrete numbers are presented since there were no meaningful results to show.
+COIN\babelhyphen{nobreak}BC performed the same no matter the edit, only a few milliseconds
+of difference between runs, which could be measurement noise. Gecode did not find
+solutions in a short amount of time (under 10~minutes), so nothing can be said about this
+solver. Chuffed varied drastically in its solve times, which is expected since it is
+sensitive to its input, so no conclusions could be drawn from this solver either.
+Most suggested edits did however make the model simpler and hopefully easier to understand.
+
 Each modification to the model will be displayed in a format similar to \texttt{diff -u},
 i.e., red lines prefixed with \texttt{-} indicate a line from the \emph{old} model that
 got removed, and green lines prefixed with \texttt{+} indicate \emph{new} lines that got added.
@@ -1534,9 +1534,8 @@ There is no need for this to be a decision variable, the array can be rewritten 
 + array [shifts] of int: shifts_values =
 +   [j | j in shifts];
 \end{mznnobreak}
-The results from doing this change is shown in the column ``Constvar'' in
-Table~\ref{tab:nsp:bench}. There are more instances taking much longer with this edit
-compared to the original.
+This edit makes it more clear as to what \mi{shift\_values} is, especially since the
+constraint and variable declaration are separated in the original model file.
 
 \paragraph{Suggestion 2}
 The second rule to match was \ruleref{nodomain} on the decision variable \mi{coverage} in
@@ -1549,9 +1548,6 @@ array[nurses, period] of var shifts_and_off: nurses_schedule;
 - array[period, shifts] of var int: coverage;
 + array[period, shifts] of var 0..n_nurses: coverage;
 \end{mznnobreak}
-The results from performing \emph{only} this change on the original yields the results
-shown in column ``Domain'' in Table~\ref{tab:nsp:bench}. It again seems like it performs
-worse than the original.
 
 \paragraph{Suggestion 3}
 The third rule to match was \ruleref{opvar} on the implication in Listing~\ref{lst:rules}.
@@ -1576,15 +1572,13 @@ predicate apply_rule_for_nurse (int: i, int: j) = let {
     rule_for_nurse
   );
 \end{mznnobreak}
-The results of this edit is shown in column ``Impl'' in Table~\ref{tab:nsp:bench}, and it
-is an improvement compared to the original.
 
 \paragraph{Suggestion 4}
 Rule \ruleref{globalfun} had matches in both predicates for using the decision
 variables without taking them as arguments to the predicates. Nothing was changed here as
 it is unclear whether an improvement in readability would have been made, the predicates
 are used to make their respective \mi{forall} smaller. There also should not be any
-performance change at all as all constraints in the end are the same.
+performance change at all since all constraints, in the end, are the same.
 
 \paragraph{Additional Edit}
 \begin{sloppypar}
@@ -1611,12 +1605,6 @@ predicate day_distribute(int: i) = let {
 +   row_coverage
     );
 \end{mznnobreak}
-\begin{sloppypar}
-The column ``All'' in Table~\ref{tab:nsp:bench} show the results of using all edits except
-\mi{global_cardinality} together, and it is worse than the original. Including
-\mi{global_cardinality} yields column ``All+Card'', and the results is better than
-``all'', but still worse compared to the original.
-\end{sloppypar}
 
 \section{Discussion}\label{sec:discussion}
 This section will feature discussions on running the linter on all models in the MiniZinc
@@ -1679,10 +1667,12 @@ starting point for a new AST searcher that supports searching for sub-trees.
 
 \subsection{Reflection on Matches in the MiniZinc Benchmarks}
 There were many rule hits throughout all models in the MiniZinc Benchmarks, which is not
-surprising as most rules are general recommendations, so most of these hits are probably
-false positives. It does not mean that they are useless though, as they will make the
-modeller think twice about, e.g., dividing a decision variable with another. But it might
-also get annoying to see many yellow squiggly lines in an IDE or text editor.
+surprising as some rules are general recommendations by design, so most of these hits are
+probably false positives. It does not mean that they are useless though, as they will make
+the modeller think twice about, e.g., dividing a decision variable with another. But it
+might also get annoying to see many yellow squiggly lines in an IDE or text editor. These
+general suggestions can probably be fine-tuned to specific solvers in the future, reducing
+the number of false positives.
 
 All rules were triggered at least twice when run on all models in the MiniZinc benchmarks,
 except for \ruleref{vargen}, which was not hit even once. This indicates that it
@@ -1692,13 +1682,10 @@ either is an obscure feature, or that people know that it is usually slow.
 which is expected since those rules are broad and do not do many exotic checks.
 Doing implications and the like on variables is also common, so these rules are maybe too broad.
 
-%TODO: fix
 It was surprising to see that there were any models at all that had no domains on their
 decision variables, and models that assigned constant values to their decision variables.
-But as the benchmark results shown in Table~\ref{tab:nsp:bench} for the reviewed model in
-Section~\ref{sec:nsp}, it is not always strictly better for all solvers to perform the
-suggestions from these two rules. This fact surprised me a lot, and I do not know why this is the case, I guess
-Chuffed in particular is very sensitive to the generated FlatZinc or something.
+There maybe are domain deductions the MiniZinc compiler can perform that I am not aware
+of, which other modellers are using.
 
 The final surprising thing was that there were a lot of matches for \ruleref{unused},
 it was in fact the \emph{most} matched one. I did not look at all of them, but
@@ -1808,15 +1795,16 @@ comments in the model itself are useful to have. In other words, a proper comman
 interface needs to be implemented.
 
 The rules presented in this report are far from everything that is interesting to check
-for. More rules should be added over time to facilitate future needs. A relatively simple
-way to create new rules without recompiling the whole program should get more thought.
-Specifying rules in configuration files in a similar manner to ESLint and hlint would be a
-good way forward. Contribution of new rules to the base linter would also get easier if
-this more accessible rule creation method is implemented. A flexible and expressive rule
-specification language would have to be designed to allow for as many kinds of rules as
-possible to be expressed in it. Extending the AST searcher to allow searching for
-sub-trees, not only paths, would most likely be needed to achieve a good specification
-language. Eventually could all rules, even the builtin ones, be converted to that format.
+for. More rules should be added over time to facilitate future needs, maybe even solver
+specific ones for better accuracy. A relatively simple way to create new rules without
+recompiling the whole program should get more thought. Specifying rules in configuration
+files in a similar manner to ESLint and hlint would be a good way forward. Contribution of
+new rules to the base linter would also get easier if this more accessible rule creation
+method is implemented. A flexible and expressive rule specification language would have to
+be designed to allow for as many kinds of rules as possible to be expressed in it.
+Extending the AST searcher to allow searching for sub-trees, not only paths, would most
+likely be needed to achieve a good specification language. Eventually could all rules,
+even the builtin ones, be converted to that format.
 
 Many of the ways a model can be obscured in could be counteracted by performing a
 simplification pass of the AST, before any rules are run. This pass could for example find
