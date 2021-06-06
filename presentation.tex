@@ -79,7 +79,7 @@
 % introducera TSP
 % MiniZinc + TSP = <3
 % diagrammet över hela mzn
-\begin{frame}{MiniZinc?}
+\begin{frame}{MiniZinc, Tool for Solving Problems}
   \begin{columns}[onlytextwidth]
     \column{0.2\textwidth}
     \includegraphics[width=\textwidth]{mznlogo.png}
@@ -87,7 +87,7 @@
 
     \column{0.75\textwidth}
     \begin{block}{What it is}
-      Toolchain for solving combinatorial optimisation problems\pause{} using \emph{decision variables} ($x$) and \emph{constraints} ($x\neq4$).\pause{} It is solver independent.
+      Toolchain for modelling combinatorial optimisation problems\pause{} using \emph{decision variables} (e.g.\@ $x$) and \emph{constraints} (e.g.\@ $x\neq4$).\pause{} It is solver independent.
     \end{block}
   \end{columns}
 
@@ -140,23 +140,24 @@
 % förklara vad en linter är
 % förklara några regler
 % begränsingar?
-\begin{frame}{Linter?}
-  \begin{block}{Linter}
-    A tool to perform static analysis on e.g.\@ source code.
+\begin{frame}{Linters in General}
+  \begin{block}{What a linter is}
+    A tool to perform static analysis on source code. It gives suggestions, okay to be wrong.
     \pause
     \begin{itemize}
-      \item Error-prone constructs
-      \item Style
-      \item Performance
-      \item Simplify the code
+      \item Error-prone constructs\pause
+      \item Style\pause
+      \item Performance\pause
+      % \item Simplify the code\pause
+      \item etc.
     \end{itemize}
-    \pause
-    \textbf{Examples:} ESLint, HLint and Clippy.
+    % \pause
+    % \textbf{Examples:} ESLint, HLint and Clippy.
   \end{block}
 
   \pause
-  \begin{alertblock}{Not precise!}
-    Many statements that can't be proven.
+  \begin{alertblock}{Many statements can't be proven!}
+    \pause Have to introduce limitations and approximations.
   \end{alertblock}
 \end{frame}
 
@@ -167,15 +168,15 @@
   \end{block}
 \end{frame}
 
-\begin{frame}{Example Execution}
-  \texttt{\textcolor{green}{\bfseries\$}\;lzn model.mzn}\bigskip
+\begin{frame}{Demo}
+  \texttt{\textcolor{green}{\bfseries\$}\;lzn nsp\_1.mzn}\bigskip\pause
 
   \includegraphics[width=\textwidth]{lznexample.png}
 \end{frame}
 
 \section{Rules}
 
-\begin{frame}[fragile]{Unused Variables and Functions}
+\begin{frame}[fragile]{Rule: Unused Variables and Functions}
   \begin{block}{Motivation}
     Unused variables and functions don't contribute to the model and should be removed.\pause{}
     Being mentioned inside constraints or other used functions counts as usage.
@@ -184,19 +185,20 @@
   \pause
   \begin{exampleblock}{Example}
   \begin{mznno}
-var int: a;
-var int: b; % unused
-constraint a > 2;
+int: K = 69;
+var 1..K: a;      % uses K
+var int: b;       % unused
+constraint a > 2; % uses a, and indirectly K
 solve satisfy;
   \end{mznno}
   \end{exampleblock}
 \end{frame}
 
-\begin{frame}[fragile]{Unused Variables and Functions Cont.}
+\begin{frame}[fragile]{Rule: Unused Variables and Functions Cont.}
   \begin{block}{Steps}
     \textbf{1.}~Find all variables and functions\quad
-    \textbf{2.}~Calculate what depends on what\quad
-    \textbf{3.}~Find all uses and recursively mark as used\quad
+    \textbf{2.}~Calculate dependencies\quad
+    \textbf{3.}~Find all uses and recursively mark nodes as used\quad
     \uncover<4->{\textbf{4.}~Simplify output}
   \end{block}
 
@@ -217,7 +219,7 @@ solve minimize f();
   \end{columns}
 \end{frame}
 
-\begin{frame}[fragile]{Missing Domain on Decision Variables}
+\begin{frame}[fragile]{Rule: Missing Domain on Decision Variables}
   \begin{block}{Motivation}
     Decision variables should \alert{always} have tight domain to limit the amount of potential values.
   \end{block}
@@ -235,53 +237,65 @@ var int: a;
   \begin{exampleblock}{Good}
     \begin{mznno}
 var 1..5: a;<@\pause@>
-var int: b = a+1;
+var int: b = a+1;<@\pause@>
 constraint b = a+1;
     \end{mznno}
   \end{exampleblock}
   \end{columns}
 \end{frame}
 
-\begin{frame}[fragile]{Missing Domain on Decision Variables Cont.}
+\begin{frame}[fragile]{Rule: Missing Domain on Decision Variables Cont.}
   \begin{block}{Steps}
     \begin{enumerate}
       \item Find all decision variables
-      \item Search constraints for equalities
+      \item Search constraints for equalities (\mi{a=...})
     \end{enumerate}
   \end{block}
 
   \pause
-  \begin{block}{$\land$-context}
+  \begin{alertblock}{Will \emph{not} always constrain \mi{a}}
+    \begin{mznno}
+constraint ... -> a=2;
+constraint a=2 \/ ...;
+    \end{mznno}
+  \end{alertblock}
+
+  \pause
+  \begin{block}{Will always constrain \mi{a}}
     \begin{mznno}
 constraint a=2;<@\pause@>
 constraint a=2 /\ ...;<@\pause@>
 constraint forall([a=2]);
     \end{mznno}
   \end{block}
-
-  \pause
-  \begin{alertblock}{Not always true}
-    \begin{mznno}
-constraint b=2 -> a=2;
-    \end{mznno}
-  \end{alertblock}
 \end{frame}
 
 \begin{frame}[fragile]{General Limitations}
-  \begin{block}{Obfuscate}
+  \begin{block}{Obfuscate the model}
     \begin{mznno}
-constraint a=2 \/ false;
+constraint a=2 \/ false;<@\pause@> % linter won't find<@\pause@>
+constraint true /\ a=2;<@\pause@>
+constraint [a] = [2];
     \end{mznno}
   \end{block}
 
   \pause
-  \begin{block}{Instance variables}
-    No reliance on instance variables (parameters).\pause
+  \begin{alertblock}{Not feasible to account for all cases}
+    They are too many ways to obfuscate!
+    Maybe add rules to remove some obfuscation?
+  \end{alertblock}
+\end{frame}
+
+\begin{frame}[fragile]{General Limitations Cont.}
+  \begin{block}{No reliance on instance variables (par)}
+    \pause
+    Determine whether all individual elements have been accessed in an array\pause
     \begin{mznno}
 int: A = 5;
-array[1..A] of var int: xs;
-constraint forall(i in 1..5)(xs[i] = ...)
-    \end{mznno}
+array[<@\alert{1..A}@>] of var int: xs;
+constraint forall(i in <@\alert{1..5}@>)(xs[i] = ...);
+    \end{mznno} %TODO: recommended way to color red in listings?
+    \pause The index sets have to be exactly the same.
   \end{block}
 \end{frame}
 
@@ -294,7 +308,7 @@ constraint forall(i in 1..5)(xs[i] = ...)
   \begin{columns}
     \column{0.67\textwidth}
   \begin{block}{Parser}
-    Reads text and structures it into a data structure that can be processed, AST is a common one.
+    \pause Reads text and structures it into a data structure that can be processed, AST is a common one.
   \end{block}
 
   \pause
@@ -314,36 +328,60 @@ constraint forall(i in 1..5)(xs[i] = ...)
   \end{columns}
 \end{frame}
 
-\begin{frame}[fragile,label=mznast]{MiniZinc AST}
+\begin{frame}<1>[fragile,label=mznast]{MiniZinc AST}
   \begin{mznno}
    constraint x+42 = y;       var int: x = 1+1+1+1;
  \end{mznno}
  \hspace{2.75cm}$\Updownarrow$\hspace{6.3cm}$\Updownarrow$
  \bigskip
  \newif\ifshowastnumbers\showastnumbersfalse
+ \newcommand\figastinsert{
+   \uncover<2>{\node[ring] at (C-1-1) {};}
+   \uncover<2>{\node[ring] at (C-1-1-2) {};}
+   \uncover<3-4>{\node[ring] at (VX-1-1) {};}
+   \uncover<3,6>{\node[ring] at (VX-1-1-2) {};}
+   \uncover<4,5>{\node[ring] at (VX-1-1-1) {};}
+   \uncover<5-8>{\node[ring] at (VX-1) {};}
+   \uncover<7>{\node[ring] at (VX-1-2-1) {};}
+   \uncover<8>{\node[ring] at (VX-1-2-2) {};}
+   \uncover<9-10>{\node[ring] at (VX-1-2) {};}
+   \uncover<9>{\node[ring] at (VX-1-2-2) {};}
+   \uncover<10>{\node[ring] at (VX-1-2-1) {};}
+ }
  \input{fig-ast-searcher}
 \end{frame}
 
 \begin{frame}{AST Searcher}
-  \begin{block}{Visitors}
-    Using existing visitors would have been \alert{verbose}. They are better for processing the whole tree.
-  \end{block}
+  % \begin{block}{Visitors}
+  %   Using existing visitors would have been \alert{verbose}. They are better for processing the whole tree.
+  % \end{block}
 
-  \pause
-  \begin{block}{Searcher}
-    Find locations in an AST from a path specification.\pause{}
-    \texttt{>} means directly under, \texttt{>{}>} means under at any depth.
-    \begin{itemize}
-      \item \texttt{+ >{}> int}\pause
-      \item \texttt{= > id}\pause
-      \item \texttt{let > = >{}> + > id}
-    \end{itemize}
+  % \pause
+  \begin{block}{How to Search}
+    Find locations of interest in an AST from a path specification (regex-like).\pause
+    \begin{columns}
+      \column{0.34\textwidth}
+      \begin{itemize}
+        \item<2-> \texttt{+}
+        \item<3-> \texttt{+ \textbf{>{}>} int}
+        \item<4-> \texttt{= \textbf{>} id}
+        \item<5-> \texttt{let \textbf{>} = \textbf{>{}>} + \textbf{>} id}
+      \end{itemize}
+
+      \column{0.60\textwidth}
+      \begin{itemize}
+        \item<2-> Find an addition node
+        \item<3-> Find an addition node with an integer under it
+        \item<4-> Find id directly under equals node
+        \item<5-> Can be arbitrarily long
+      \end{itemize}
+    \end{columns}
   \end{block}
 \end{frame}
 
-\againframe{mznast} %TODO: animate?
+\againframe{mznast}
 
-\begin{frame}{Overview}
+\begin{frame}{Execution Overview}
   \begin{columns}
     \column{0.67\textwidth}
     \begin{center}
@@ -374,7 +412,7 @@ constraint forall(i in 1..5)(xs[i] = ...)
 \section{Summary}
 \begin{frame}{Summary}
   \begin{itemize}
-    \item MiniZinc is a modelling language that can be used on different solvers.
+    \item MiniZinc is a modelling language that supports several different solvers.
     \item Decision variables are unknows and constraints constrain them.
     \item A linter for static analysis of models was created.
     \item Some things are impossible to deduce.

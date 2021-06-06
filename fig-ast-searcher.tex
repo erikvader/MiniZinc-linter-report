@@ -2,9 +2,10 @@
 \begin{tikzpicture}[
 label distance=-10pt,
 every label/.style={blue},
-lbl/.style={label=160:{\ifshowastnumbers\stepcounter{asdasd}\arabic{asdasd}\fi}}
+lbl/.style={label=160:{\ifshowastnumbers\stepcounter{asdasd}\arabic{asdasd}\fi}},
+ring/.style={circle,draw=red,ultra thick,minimum size=1.3cm},
 ]
-  \node at (0, 0) {\mi{constraint}} [sibling distance=60pt]
+  \node (C) at (0, 0) {\mi{constraint}} [sibling distance=60pt]
   child {node[lbl] {\cpp{BinOp} =}
     child {node[lbl] {\cpp{BinOp} +}
       child {node[lbl] (X) {\cpp{Id} ``x''}}
@@ -26,4 +27,6 @@ lbl/.style={label=160:{\ifshowastnumbers\stepcounter{asdasd}\arabic{asdasd}\fi}}
   };
 
   \draw[-{Straight Barb[scale=1.3]},dashed] plot [smooth] coordinates {(X.south) ($(X.south) + (3, -0.3)$) ($(VX.west) + (-1.2, -0.5)$) (VX.west)};
+
+  \ifdefined\figastinsert\figastinsert\fi
 \end{tikzpicture}
