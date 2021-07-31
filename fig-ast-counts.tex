@@ -1,6 +1,4 @@
-\begin{figure}[ht]
-  \centering
-  \begin{tikzpicture}
+\begin{tikzpicture}
     \begin{axis} [
       xmode=log,
       % ymode=log,
@@ -37,13 +35,3 @@
       \addplot table [x=numnodes, y=perc, col sep=comma] {counts.csv};
     \end{axis}
   \end{tikzpicture}
-  \caption{The AST sizes (number of nodes they consist of) on all models in the MiniZinc
-    Benchmarks. An AST in this case is a top-level item, not a whole model. The left graph
-    show how many times various AST sizes occur, and the right graph show a scaled
-    cumulative sum of the left one. The largest AST had a size of 917442, and occurred 4
-    times. Most ASTs were small, 92\% of all ASTs consisted of 14 nodes or less, and
-    99.5\% consisted of 60 nodes or less. These numbers come from running the AST
-    searcher, configured to match a single node of any type anywhere in the tree, and
-    counting the number of matches.}%
-  \label{fig:ast:counts}
-\end{figure}
