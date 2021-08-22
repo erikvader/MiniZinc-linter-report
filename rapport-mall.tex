@@ -17,6 +17,7 @@
 \newcommand{\Continue}{\State\textbf{continue}}
 \newcommand{\Yield}[1]{\State\textbf{yield} #1}
 \usepackage{algorithm}
+\usepackage{pdfpages}
 
 \newif\iffast
 % \fasttrue
@@ -59,29 +60,30 @@
 \seriesname{Examensarbete 30 hp}
 \seriesnumber{UPTEC IT21~022}
 
-\maketitle
+% \maketitle
+\includepdf[noautoscale=true]{Exjobbsframsida.pdf}
 
 \leblanc
 
 % Change to frontmatter style (e.g. roman page numbers)
 \frontmatter
 
-\begin{abstract}
-% \input{instr-abstract}
-MiniZinc is a modelling language for constraint satisfaction and optimisation problems.
-It can be used to solve difficult problems by declaratively modelling them and giving
-them to a generic solver.
-A linter, a tool for static analysis, is implemented for MiniZinc to provide analysis
-for improving models.
-Suggesting rewrites that will speed up solving, removing unnecessary constructs, and
-pointing out potential problems are examples of the analysis this tool provides.
-A method for finding points of interest in abstract syntax trees (parsed models) is designed and implemented.
-The linter is tested and evaluated against models in the MiniZinc Benchmarks,
-a collection of models used to benchmark solvers.
-The result from running the linter on one of the models from the benchmarks is more
-closely inspected and evaluated.
-The suggestions were correct and made the model simpler, but, unfortunately, there was no noticeable impact on the solving speed.
-\end{abstract}
+\includepdf[noautoscale=true]{Abstractsida.pdf}
+% \begin{abstract}
+% MiniZinc is a modelling language for constraint satisfaction and optimisation problems.
+% It can be used to solve difficult problems by declaratively modelling them and giving
+% them to a generic solver.
+% A linter, a tool for static analysis, is implemented for MiniZinc to provide analysis
+% for improving models.
+% Suggesting rewrites that will speed up solving, removing unnecessary constructs, and
+% pointing out potential problems are examples of the analysis this tool provides.
+% A method for finding points of interest in abstract syntax trees (parsed models) is designed and implemented.
+% The linter is tested and evaluated against models in the MiniZinc Benchmarks,
+% a collection of models used to benchmark solvers.
+% The result from running the linter on one of the models from the benchmarks is more
+% closely inspected and evaluated.
+% The suggestions were correct and made the model simpler, but, unfortunately, there was no noticeable impact on the solving speed.
+% \end{abstract}
 
 \leblanc
 
